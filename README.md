@@ -11,4 +11,5 @@
 2. semantic_service (Основная бизнес логика) https://github.com/LiveisFpv/VKR_SemanticSearch_service
 3. ELK_service (Логи и метрики) https://github.com/LiveisFpv/VKR_ELK_service
 4. authorization_service (Авторизация пользователей) https://github.com/LiveisFpv/authorization_service
-### Frontend services
+### Frontend service
+https://github.com/LiveisFpv/VKR_Frontend
