@@ -1,0 +1,12 @@
+requests
+tqdm
+torch
+pandas
+transformers
+# torch torchvision torchaudio --index-url https://download.pytorch.org/whl/cu126
+python-logstash-async
+grpcio
+python-dotenv
+protobuf 
+grpcio 
+grpcio-tools
