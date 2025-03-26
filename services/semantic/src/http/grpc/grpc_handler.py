@@ -13,12 +13,12 @@ class SemanticServiceHandlerGrpc(service_pb2_grpc.SemanticServiceServicer):
         # Отправляем данные из БД релевантные по сходству
         return service_pb2.PapersResponse(
             Papers=[service_pb2.PaperResponse(
-                ID=paper.ID,
-                Title=paper.Title,
-                Abstract=paper.Abstract,
-                Year=paper.Year,
-                Best_oa_location=paper.Best_oa_location
-            ) for paper in matching_papers]
+                ID="W157958743",
+                Title="paper.Title",
+                Abstract="paper.Abstract",
+                Year=2024,
+                Best_oa_location="paper.Best_oa_location"
+            )]
         )
 
     def AddPaper(self, request:service_pb2.AddRequest, context:grpc.ServicerContext)->service_pb2.ErrorResponse:
