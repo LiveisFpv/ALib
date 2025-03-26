@@ -1,0 +1,3 @@
+xpack.security.enabled: false
+xpack.reporting.enabled: false
+xpack.encryptedSavedObjects.enabled: false
