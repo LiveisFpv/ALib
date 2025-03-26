@@ -6,3 +6,9 @@
 2. Построение нейросетевой модели, учитывающей семантику и цитирования.
 3. Разработка архитектуры поискового движка.
 4. Оценка качества поиска.
+### BACKEND services
+1. gateway (Точка входа API) https://github.com/LiveisFpv/VKR_gateway_service 
+2. semantic_service (Основная бизнес логика) https://github.com/LiveisFpv/VKR_SemanticSearch_service
+3. ELK_service (Логи и метрики) https://github.com/LiveisFpv/VKR_ELK_service
+4. authorization_service (Авторизация пользователей) https://github.com/LiveisFpv/authorization_service
+### Frontend services
