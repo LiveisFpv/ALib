@@ -6,3 +6,5 @@ test
 __pycache__
 processed_dataset
 processed_dataset.pth
+*.csv
+*.pth
