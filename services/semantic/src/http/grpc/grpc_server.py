@@ -2,15 +2,16 @@ import grpc
 from concurrent import futures
 from src.lib.logger import Logger
 from src.http.grpc import service_pb2_grpc
+from src.services.search.search import SearchService
 from src.http.grpc.grpc_handler import SemanticServiceHandlerGrpc
 
 class SemanticServiceGrpc:
-    def __init__(self,semantic_service, logger: Logger):
+    def __init__(self,search_service: SearchService, logger: Logger):
         self.logger = logger
         self.logger.info(f"Starting grpc server")
-        self.semantic_service = semantic_service
+        self.search_service = search_service
         # Добавляем обработчик
-        self.handler = SemanticServiceHandlerGrpc(semantic_service, logger)
+        self.handler = SemanticServiceHandlerGrpc(search_service, logger)
 
     def serve(self,port=50051):
         """Запуск сервера с определенным портом"""

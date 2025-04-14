@@ -6,9 +6,13 @@ import os
 import pandas as pd
 import os
 import tqdm
+import sys
+sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
 from src.lib.logger import Logger
+from src.domain.models.paper import PaperModel
+from src.config.config import LOG_LEVEL, LOGSTASH_HOST, LOGSTASH_PORT
 
-class Model:
+class Bert:
     def __init__(self, model_name, vector_dir, logger:Logger):
         self.__model_name = model_name
         self.__device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
@@ -64,8 +68,10 @@ class Model:
 
         return all_vectors
     
-    def get_similar_texts(self, query_text, top_n=5):
-        """Поиск наиболее похожих текстов."""
+    def get_similar_texts(self, query_text, top_n=5)->list[list]:
+        """Поиск наиболее похожих текстов.
+            Returning: list of PaperModel
+        """
         query_embedding = self.__get_embedding(query_text)  # Эмбеддинг запроса
         query_embedding = query_embedding.squeeze(0)  # Убираем лишнию размерность
         
@@ -75,7 +81,8 @@ class Model:
             vector = item["vector"]
             similarity = F.cosine_similarity(query_embedding, vector, dim=0)
             similarities.append((item["id"], item["file_path"], item["source_file"], similarity.item()))
-        
+            
+
         # Сортируем по убыванию схожести
         similarities.sort(key=lambda x: x[3], reverse=True)
         
@@ -157,7 +164,7 @@ class Model:
 
 if __name__ == "__main__":
     vector_directory = "./data/vectorized/openAlex/"  # Путь к директории с `.pth` файлами
-    model = Model("intfloat/multilingual-e5-large", vector_directory)
+    model = Bert("intfloat/multilingual-e5-large", vector_directory,logger=Logger(LOGSTASH_HOST,LOGSTASH_PORT,"Semantic_Search_Service",LOG_LEVEL))
 
     query = "Machine learning for scientific research"
     top_matches = model.get_similar_texts(query, top_n=5)
