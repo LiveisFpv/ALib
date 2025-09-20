@@ -1,0 +1,17 @@
+venv
+__pycache__
+*.pyc
+*.pyo
+*.pyd
+*.so
+*.egg-info
+.git
+.gitignore
+data
+tests
+.vscode
+.idea
+*.log
+*.pth
+*.pt
+*.bin
