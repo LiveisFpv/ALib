@@ -8,3 +8,4 @@ processed_dataset
 processed_dataset.pth
 *.csv
 *.pth
+.env

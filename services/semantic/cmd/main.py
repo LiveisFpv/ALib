@@ -8,7 +8,7 @@ from src.http.grpc.grpc_server import SemanticServiceGrpc
 from src.services.search.search import SearchService
 
 # Init logger for project
-logger=Logger(LOGSTASH_HOST,LOGSTASH_PORT,"Semantic_Search_Service",LOG_LEVEL)
+logger=Logger('',0,"Semantic_Search_Service",LOG_LEVEL)
 
 # Start AL services
 vector_directory = "./data/vectorized/openAlex/"

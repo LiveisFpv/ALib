@@ -47,13 +47,15 @@ class Logger:
         console_handler = logging.StreamHandler(sys.stdout)
         console_handler.setFormatter(CustomFormatter())
         self.logger.addHandler(console_handler)
-
-        # Logstash логгер
-        try:
-            logstash_handler = AsynchronousLogstashHandler(logstash_host, logstash_port, database_path=None)
-            logstash_handler.setFormatter(CustomFormatter())
-            self.logger.addHandler(logstash_handler)
-        except Exception:
+        if logstash_host !='' and logstash_port!=0:
+            # Logstash логгер
+            try:
+                logstash_handler = AsynchronousLogstashHandler(logstash_host, logstash_port, database_path=None)
+                logstash_handler.setFormatter(CustomFormatter())
+                self.logger.addHandler(logstash_handler)
+            except Exception:
+                RuntimeWarning("Failed to connect to Logstash")
+        else:
             RuntimeWarning("Failed to connect to Logstash")
 
     def log(self, level, message, **extra):

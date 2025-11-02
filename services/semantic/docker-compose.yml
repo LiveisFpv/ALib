@@ -4,7 +4,7 @@ services:
     image: semantic-search:latest
     container_name: semantic-search
     env_file:
-      - conf/.env
+      - .env
     environment:
       - SEMANTIC_HOST=0.0.0.0
     command: ["python", "cmd/main.py"]
@@ -19,13 +19,55 @@ services:
       timeout: 5s
       retries: 10
       start_period: 20s
+    depends_on:
+      migrator:
+        condition: service_completed_successfully
     networks:
       - grpc_network
+
+  postgres:
+    container_name: Semantic_db
+    image: postgres:17
+    environment:
+      - POSTGRES_USER=${DB_USER}
+      - POSTGRES_PASSWORD=${DB_PASSWORD}
+      - POSTGRES_DB=${DB_NAME}
+    # ports:
+      # - "15432:${DB_PORT}"
+    volumes:
+      - postgres_semantic_data:/var/lib/postgresql/data
+    healthcheck:  # Ждем, пока БД будет готова
+      test: ["CMD", "pg_isready", "-U", "${DB_USER}"]
+      interval: 5s
+      retries: 5
+    networks:
+      - storage_network
+
+  migrator:
+    container_name: Semantic_migrator
+    build:
+      context: .
+      dockerfile: ./tools/migrator/dockerfile
+    environment:
+      - DB_USER=${DB_USER}
+      - DB_PASSWORD=${DB_PASSWORD}
+      - DB_NAME=${DB_NAME}
+      - DB_PORT=${DB_PORT}
+      - DB_HOST=${DB_HOST}
+    depends_on:
+      postgres:
+        condition: service_healthy
+    networks:
+      - storage_network
+
 
 networks:
   grpc_network:
     external: true
+  storage_network:
+    driver: bridge
 
 volumes:
   hf-cache:
+  postgres_semantic_data:
 
