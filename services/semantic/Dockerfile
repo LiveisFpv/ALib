@@ -1,31 +1,30 @@
-FROM python:3.12-slim
+FROM python:3.12-slim AS base
 
 ENV PYTHONDONTWRITEBYTECODE=1 \
     PYTHONUNBUFFERED=1 \
-    PIP_NO_CACHE_DIR=1 \
     TRANSFORMERS_CACHE=/cache/huggingface
 
 WORKDIR /app
 
-# System deps (optional, keep minimal)
+# Системные зависимости (минимум)
 RUN apt-get update && apt-get install -y --no-install-recommends \
     ca-certificates \
-    && rm -rf /var/lib/apt/lists/*
+  && rm -rf /var/lib/apt/lists/*
 
-COPY requirements.txt ./
-RUN pip install --upgrade pip && pip install -r requirements.txt
+COPY requirements.txt .
 
-# App code
+RUN --mount=type=cache,target=/root/.cache/pip \
+    python -m pip install -U pip \
+ && python -m pip install --prefer-binary -r requirements.txt
+
 COPY src ./src
 COPY cmd ./cmd
 COPY proto ./proto
 COPY conf ./conf
 COPY scripts ./scripts
 
-# Create cache dir for HF models
+# Кеш для моделей HF (на время работы контейнера)
 RUN mkdir -p /cache/huggingface
 
 EXPOSE 5104
-
 CMD ["python", "cmd/main.py"]
-

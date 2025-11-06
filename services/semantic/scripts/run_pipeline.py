@@ -6,7 +6,10 @@ from __future__ import annotations
 import argparse
 import logging
 import os
+import sys
 from logging.config import dictConfig
+
+sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
 
 from src.pipeline.runner import PipelineRunner
 from src.pipeline.worker import PipelineWorker
