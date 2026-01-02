@@ -3,9 +3,9 @@
 import grpc
 import warnings
 
-from src.http.grpc import service_pb2 as service__pb2
+import service_pb2 as service__pb2
 
-GRPC_GENERATED_VERSION = '1.71.0'
+GRPC_GENERATED_VERSION = '1.75.0'
 GRPC_VERSION = grpc.__version__
 _version_not_supported = False
 
@@ -34,6 +34,51 @@ class SemanticServiceStub(object):
         Args:
             channel: A grpc.Channel.
         """
+        self.GetInstitutions = channel.unary_unary(
+                '/semantic.SemanticService/GetInstitutions',
+                request_serializer=service__pb2.InstitutionReq.SerializeToString,
+                response_deserializer=service__pb2.InstitutionsResp.FromString,
+                _registered_method=True)
+        self.AddInstitution = channel.unary_unary(
+                '/semantic.SemanticService/AddInstitution',
+                request_serializer=service__pb2.Institution.SerializeToString,
+                response_deserializer=service__pb2.ErrorResponse.FromString,
+                _registered_method=True)
+        self.GetAuthors = channel.unary_unary(
+                '/semantic.SemanticService/GetAuthors',
+                request_serializer=service__pb2.AuthorReq.SerializeToString,
+                response_deserializer=service__pb2.AuthorsResp.FromString,
+                _registered_method=True)
+        self.AddAuthor = channel.unary_unary(
+                '/semantic.SemanticService/AddAuthor',
+                request_serializer=service__pb2.Author.SerializeToString,
+                response_deserializer=service__pb2.ErrorResponse.FromString,
+                _registered_method=True)
+        self.GetChatHistory = channel.unary_unary(
+                '/semantic.SemanticService/GetChatHistory',
+                request_serializer=service__pb2.HistoryReq.SerializeToString,
+                response_deserializer=service__pb2.HistoryResp.FromString,
+                _registered_method=True)
+        self.CreateNewChat = channel.unary_unary(
+                '/semantic.SemanticService/CreateNewChat',
+                request_serializer=service__pb2.Chat.SerializeToString,
+                response_deserializer=service__pb2.ChatResp.FromString,
+                _registered_method=True)
+        self.UpdateChat = channel.unary_unary(
+                '/semantic.SemanticService/UpdateChat',
+                request_serializer=service__pb2.Chat.SerializeToString,
+                response_deserializer=service__pb2.ChatResp.FromString,
+                _registered_method=True)
+        self.GetUserChats = channel.unary_unary(
+                '/semantic.SemanticService/GetUserChats',
+                request_serializer=service__pb2.UserChatsReq.SerializeToString,
+                response_deserializer=service__pb2.ChatsResp.FromString,
+                _registered_method=True)
+        self.GetAuthorPapers = channel.unary_unary(
+                '/semantic.SemanticService/GetAuthorPapers',
+                request_serializer=service__pb2.AuthorPaperReq.SerializeToString,
+                response_deserializer=service__pb2.PapersResponse.FromString,
+                _registered_method=True)
         self.SearchPaper = channel.unary_unary(
                 '/semantic.SemanticService/SearchPaper',
                 request_serializer=service__pb2.SearchRequest.SerializeToString,
@@ -48,6 +93,60 @@ class SemanticServiceStub(object):
 
 class SemanticServiceServicer(object):
     """Missing associated documentation comment in .proto file."""
+
+    def GetInstitutions(self, request, context):
+        """Missing associated documentation comment in .proto file."""
+        context.set_code(grpc.StatusCode.UNIMPLEMENTED)
+        context.set_details('Method not implemented!')
+        raise NotImplementedError('Method not implemented!')
+
+    def AddInstitution(self, request, context):
+        """Missing associated documentation comment in .proto file."""
+        context.set_code(grpc.StatusCode.UNIMPLEMENTED)
+        context.set_details('Method not implemented!')
+        raise NotImplementedError('Method not implemented!')
+
+    def GetAuthors(self, request, context):
+        """Missing associated documentation comment in .proto file."""
+        context.set_code(grpc.StatusCode.UNIMPLEMENTED)
+        context.set_details('Method not implemented!')
+        raise NotImplementedError('Method not implemented!')
+
+    def AddAuthor(self, request, context):
+        """Missing associated documentation comment in .proto file."""
+        context.set_code(grpc.StatusCode.UNIMPLEMENTED)
+        context.set_details('Method not implemented!')
+        raise NotImplementedError('Method not implemented!')
+
+    def GetChatHistory(self, request, context):
+        """Missing associated documentation comment in .proto file."""
+        context.set_code(grpc.StatusCode.UNIMPLEMENTED)
+        context.set_details('Method not implemented!')
+        raise NotImplementedError('Method not implemented!')
+
+    def CreateNewChat(self, request, context):
+        """Missing associated documentation comment in .proto file."""
+        context.set_code(grpc.StatusCode.UNIMPLEMENTED)
+        context.set_details('Method not implemented!')
+        raise NotImplementedError('Method not implemented!')
+
+    def UpdateChat(self, request, context):
+        """Missing associated documentation comment in .proto file."""
+        context.set_code(grpc.StatusCode.UNIMPLEMENTED)
+        context.set_details('Method not implemented!')
+        raise NotImplementedError('Method not implemented!')
+
+    def GetUserChats(self, request, context):
+        """Missing associated documentation comment in .proto file."""
+        context.set_code(grpc.StatusCode.UNIMPLEMENTED)
+        context.set_details('Method not implemented!')
+        raise NotImplementedError('Method not implemented!')
+
+    def GetAuthorPapers(self, request, context):
+        """Missing associated documentation comment in .proto file."""
+        context.set_code(grpc.StatusCode.UNIMPLEMENTED)
+        context.set_details('Method not implemented!')
+        raise NotImplementedError('Method not implemented!')
 
     def SearchPaper(self, request, context):
         """Missing associated documentation comment in .proto file."""
@@ -64,6 +163,51 @@ class SemanticServiceServicer(object):
 
 def add_SemanticServiceServicer_to_server(servicer, server):
     rpc_method_handlers = {
+            'GetInstitutions': grpc.unary_unary_rpc_method_handler(
+                    servicer.GetInstitutions,
+                    request_deserializer=service__pb2.InstitutionReq.FromString,
+                    response_serializer=service__pb2.InstitutionsResp.SerializeToString,
+            ),
+            'AddInstitution': grpc.unary_unary_rpc_method_handler(
+                    servicer.AddInstitution,
+                    request_deserializer=service__pb2.Institution.FromString,
+                    response_serializer=service__pb2.ErrorResponse.SerializeToString,
+            ),
+            'GetAuthors': grpc.unary_unary_rpc_method_handler(
+                    servicer.GetAuthors,
+                    request_deserializer=service__pb2.AuthorReq.FromString,
+                    response_serializer=service__pb2.AuthorsResp.SerializeToString,
+            ),
+            'AddAuthor': grpc.unary_unary_rpc_method_handler(
+                    servicer.AddAuthor,
+                    request_deserializer=service__pb2.Author.FromString,
+                    response_serializer=service__pb2.ErrorResponse.SerializeToString,
+            ),
+            'GetChatHistory': grpc.unary_unary_rpc_method_handler(
+                    servicer.GetChatHistory,
+                    request_deserializer=service__pb2.HistoryReq.FromString,
+                    response_serializer=service__pb2.HistoryResp.SerializeToString,
+            ),
+            'CreateNewChat': grpc.unary_unary_rpc_method_handler(
+                    servicer.CreateNewChat,
+                    request_deserializer=service__pb2.Chat.FromString,
+                    response_serializer=service__pb2.ChatResp.SerializeToString,
+            ),
+            'UpdateChat': grpc.unary_unary_rpc_method_handler(
+                    servicer.UpdateChat,
+                    request_deserializer=service__pb2.Chat.FromString,
+                    response_serializer=service__pb2.ChatResp.SerializeToString,
+            ),
+            'GetUserChats': grpc.unary_unary_rpc_method_handler(
+                    servicer.GetUserChats,
+                    request_deserializer=service__pb2.UserChatsReq.FromString,
+                    response_serializer=service__pb2.ChatsResp.SerializeToString,
+            ),
+            'GetAuthorPapers': grpc.unary_unary_rpc_method_handler(
+                    servicer.GetAuthorPapers,
+                    request_deserializer=service__pb2.AuthorPaperReq.FromString,
+                    response_serializer=service__pb2.PapersResponse.SerializeToString,
+            ),
             'SearchPaper': grpc.unary_unary_rpc_method_handler(
                     servicer.SearchPaper,
                     request_deserializer=service__pb2.SearchRequest.FromString,
@@ -84,6 +228,249 @@ def add_SemanticServiceServicer_to_server(servicer, server):
  # This class is part of an EXPERIMENTAL API.
 class SemanticService(object):
     """Missing associated documentation comment in .proto file."""
+
+    @staticmethod
+    def GetInstitutions(request,
+            target,
+            options=(),
+            channel_credentials=None,
+            call_credentials=None,
+            insecure=False,
+            compression=None,
+            wait_for_ready=None,
+            timeout=None,
+            metadata=None):
+        return grpc.experimental.unary_unary(
+            request,
+            target,
+            '/semantic.SemanticService/GetInstitutions',
+            service__pb2.InstitutionReq.SerializeToString,
+            service__pb2.InstitutionsResp.FromString,
+            options,
+            channel_credentials,
+            insecure,
+            call_credentials,
+            compression,
+            wait_for_ready,
+            timeout,
+            metadata,
+            _registered_method=True)
+
+    @staticmethod
+    def AddInstitution(request,
+            target,
+            options=(),
+            channel_credentials=None,
+            call_credentials=None,
+            insecure=False,
+            compression=None,
+            wait_for_ready=None,
+            timeout=None,
+            metadata=None):
+        return grpc.experimental.unary_unary(
+            request,
+            target,
+            '/semantic.SemanticService/AddInstitution',
+            service__pb2.Institution.SerializeToString,
+            service__pb2.ErrorResponse.FromString,
+            options,
+            channel_credentials,
+            insecure,
+            call_credentials,
+            compression,
+            wait_for_ready,
+            timeout,
+            metadata,
+            _registered_method=True)
+
+    @staticmethod
+    def GetAuthors(request,
+            target,
+            options=(),
+            channel_credentials=None,
+            call_credentials=None,
+            insecure=False,
+            compression=None,
+            wait_for_ready=None,
+            timeout=None,
+            metadata=None):
+        return grpc.experimental.unary_unary(
+            request,
+            target,
+            '/semantic.SemanticService/GetAuthors',
+            service__pb2.AuthorReq.SerializeToString,
+            service__pb2.AuthorsResp.FromString,
+            options,
+            channel_credentials,
+            insecure,
+            call_credentials,
+            compression,
+            wait_for_ready,
+            timeout,
+            metadata,
+            _registered_method=True)
+
+    @staticmethod
+    def AddAuthor(request,
+            target,
+            options=(),
+            channel_credentials=None,
+            call_credentials=None,
+            insecure=False,
+            compression=None,
+            wait_for_ready=None,
+            timeout=None,
+            metadata=None):
+        return grpc.experimental.unary_unary(
+            request,
+            target,
+            '/semantic.SemanticService/AddAuthor',
+            service__pb2.Author.SerializeToString,
+            service__pb2.ErrorResponse.FromString,
+            options,
+            channel_credentials,
+            insecure,
+            call_credentials,
+            compression,
+            wait_for_ready,
+            timeout,
+            metadata,
+            _registered_method=True)
+
+    @staticmethod
+    def GetChatHistory(request,
+            target,
+            options=(),
+            channel_credentials=None,
+            call_credentials=None,
+            insecure=False,
+            compression=None,
+            wait_for_ready=None,
+            timeout=None,
+            metadata=None):
+        return grpc.experimental.unary_unary(
+            request,
+            target,
+            '/semantic.SemanticService/GetChatHistory',
+            service__pb2.HistoryReq.SerializeToString,
+            service__pb2.HistoryResp.FromString,
+            options,
+            channel_credentials,
+            insecure,
+            call_credentials,
+            compression,
+            wait_for_ready,
+            timeout,
+            metadata,
+            _registered_method=True)
+
+    @staticmethod
+    def CreateNewChat(request,
+            target,
+            options=(),
+            channel_credentials=None,
+            call_credentials=None,
+            insecure=False,
+            compression=None,
+            wait_for_ready=None,
+            timeout=None,
+            metadata=None):
+        return grpc.experimental.unary_unary(
+            request,
+            target,
+            '/semantic.SemanticService/CreateNewChat',
+            service__pb2.Chat.SerializeToString,
+            service__pb2.ChatResp.FromString,
+            options,
+            channel_credentials,
+            insecure,
+            call_credentials,
+            compression,
+            wait_for_ready,
+            timeout,
+            metadata,
+            _registered_method=True)
+
+    @staticmethod
+    def UpdateChat(request,
+            target,
+            options=(),
+            channel_credentials=None,
+            call_credentials=None,
+            insecure=False,
+            compression=None,
+            wait_for_ready=None,
+            timeout=None,
+            metadata=None):
+        return grpc.experimental.unary_unary(
+            request,
+            target,
+            '/semantic.SemanticService/UpdateChat',
+            service__pb2.Chat.SerializeToString,
+            service__pb2.ChatResp.FromString,
+            options,
+            channel_credentials,
+            insecure,
+            call_credentials,
+            compression,
+            wait_for_ready,
+            timeout,
+            metadata,
+            _registered_method=True)
+
+    @staticmethod
+    def GetUserChats(request,
+            target,
+            options=(),
+            channel_credentials=None,
+            call_credentials=None,
+            insecure=False,
+            compression=None,
+            wait_for_ready=None,
+            timeout=None,
+            metadata=None):
+        return grpc.experimental.unary_unary(
+            request,
+            target,
+            '/semantic.SemanticService/GetUserChats',
+            service__pb2.UserChatsReq.SerializeToString,
+            service__pb2.ChatsResp.FromString,
+            options,
+            channel_credentials,
+            insecure,
+            call_credentials,
+            compression,
+            wait_for_ready,
+            timeout,
+            metadata,
+            _registered_method=True)
+
+    @staticmethod
+    def GetAuthorPapers(request,
+            target,
+            options=(),
+            channel_credentials=None,
+            call_credentials=None,
+            insecure=False,
+            compression=None,
+            wait_for_ready=None,
+            timeout=None,
+            metadata=None):
+        return grpc.experimental.unary_unary(
+            request,
+            target,
+            '/semantic.SemanticService/GetAuthorPapers',
+            service__pb2.AuthorPaperReq.SerializeToString,
+            service__pb2.PapersResponse.FromString,
+            options,
+            channel_credentials,
+            insecure,
+            call_credentials,
+            compression,
+            wait_for_ready,
+            timeout,
+            metadata,
+            _registered_method=True)
 
     @staticmethod
     def SearchPaper(request,
