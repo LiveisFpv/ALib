@@ -1,15 +1,20 @@
 from src.lib.logger import Logger
 from src.http.grpc import service_pb2, service_pb2_grpc
-from src.services.search.search import SearchService
+from src.services.search.search_service import SearchService
+from src.services.chat_service import ChatService
+from src.services.user_service import UserService
 import grpc
 import math
 
 
 class SemanticServiceHandlerGrpc(service_pb2_grpc.SemanticServiceServicer):
-    def __init__(self, search_service: SearchService, logger: Logger):
+    def __init__(self, search_service: SearchService,chat_service:ChatService,user_service:UserService, logger: Logger):
         self.logger = logger
         self.search_service = search_service
+        self.user_service = user_service
+        self.chat_service = chat_service
 
+    # ! TODO add handlers for chat and user services
     def SearchPaper(self, request: service_pb2.SearchRequest, context: grpc.ServicerContext) -> service_pb2.PapersResponse:
         self.logger.info(f"SearchPaper request: {request.Input_data}")
         try:
@@ -65,4 +70,21 @@ class SemanticServiceHandlerGrpc(service_pb2_grpc.SemanticServiceServicer):
         return service_pb2.ErrorResponse(
             Error=""
         )
-
+    def CreateNewChat(self, request: service_pb2.Chat, context: grpc.ServicerContext)->service_pb2.ChatResp:
+        return super().CreateNewChat(request, context) 
+    def GetChatHistory(self, request: service_pb2.HistoryReq, context: grpc.ServicerContext)->service_pb2.ChatsResp:
+        return super().GetChatHistory(request, context)
+    def GetAuthorPapers(self, request: service_pb2.AuthorPaperReq, context: grpc.ServicerContext)->service_pb2.PapersResponse:
+        return super().GetAuthorPapers(request, context)
+    def GetAuthors(self, request: service_pb2.AuthorReq, context: grpc.ServicerContext)->service_pb2.AuthorsResp:
+        return super().GetAuthors(request, context)
+    def GetInstitutions(self, request: service_pb2.InstitutionReq, context: grpc.ServicerContext)->service_pb2.InstitutionsResp:
+        return super().GetInstitutions(request, context)
+    def GetUserChats(self, request: service_pb2.UserChatsReq, context: grpc.ServicerContext)->service_pb2.ChatsResp:
+        return super().GetUserChats(request, context)
+    def UpdateChat(self, request: service_pb2.UpdateChatReq, context: grpc.ServicerContext)->service_pb2.ChatResp:
+        return super().UpdateChat(request, context)
+    def AddAuthor(self, request: service_pb2.Author, context: grpc.ServicerContext)->service_pb2.ErrorResponse:
+        return super().AddAuthor(request, context)
+    def AddInstitution(self, request: service_pb2.Institution, context: grpc.ServicerContext)->service_pb2.ErrorResponse:
+        return super().AddInstitution(request, context)
