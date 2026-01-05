@@ -1,1 +1,0 @@
-#TODO connect to FAISS, collect and search vectors

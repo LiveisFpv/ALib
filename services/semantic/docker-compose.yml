@@ -24,6 +24,7 @@ services:
         condition: service_completed_successfully
     networks:
       - grpc_network
+      - storage_network
 
   postgres:
     container_name: Semantic_db
@@ -32,8 +33,8 @@ services:
       - POSTGRES_USER=${DB_USER}
       - POSTGRES_PASSWORD=${DB_PASSWORD}
       - POSTGRES_DB=${DB_NAME}
-    # ports:
-      # - "15432:${DB_PORT}"
+    ports:
+      - "15432:${DB_PORT}"
     volumes:
       - postgres_semantic_data:/var/lib/postgresql/data
     healthcheck:  # Ждем, пока БД будет готова
@@ -57,6 +58,25 @@ services:
     depends_on:
       postgres:
         condition: service_healthy
+    networks:
+      - storage_network
+
+  pipeline-worker:
+    # build: .
+    image: semantic-search:latest
+    container_name: semantic-pipeline
+    command: ["python", "scripts/run_pipeline.py", "--mode", "serve"]
+    env_file:
+      - .env
+    environment:
+      - PIPELINE_LOG_LEVEL=INFO
+    volumes:
+      - ./data:/app/data
+      - hf-cache:/cache/huggingface
+    depends_on:
+      migrator:
+        condition: service_completed_successfully
+    restart: unless-stopped
     networks:
       - storage_network
 

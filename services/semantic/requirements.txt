@@ -7,6 +7,9 @@ transformers
 python-logstash-async
 grpcio
 python-dotenv
-protobuf 
-grpcio 
+protobuf
 grpcio-tools
+numpy
+polars
+psycopg[binary]
+faiss-cpu
