@@ -3,6 +3,8 @@ from src.http.grpc import service_pb2, service_pb2_grpc
 from src.services.search.search_service import SearchService
 from src.services.chat_service import ChatService
 from src.services.user_service import UserService
+from src.domain.models.chat import ChatModel, ChatMessage
+from src.domain.models.paper import PaperModel
 import grpc
 import math
 
@@ -20,34 +22,16 @@ class SemanticServiceHandlerGrpc(service_pb2_grpc.SemanticServiceServicer):
         try:
             matching_papers = self.search_service.search_paper(request.Input_data)
 
-            def to_str(v):
-                try:
-                    return "" if v is None else str(v)
-                except Exception:
-                    return ""
-
-            def to_int(v):
-                try:
-                    if v is None:
-                        return 0
-                    if isinstance(v, float) and math.isnan(v):
-                        return 0
-                    return int(v)
-                except Exception:
-                    try:
-                        return int(float(v))
-                    except Exception:
-                        return 0
-
             papers_resp = service_pb2.PapersResponse()
             for paper in matching_papers:
-                papers_resp.Papers.append(service_pb2.PaperResponse(
-                    ID=to_str(paper.ID),
-                    Title=to_str(paper.Title),
-                    Abstract=to_str(paper.Abstract),
-                    Year=to_int(paper.Year),
-                    Best_oa_location=to_str(paper.Best_oa_location)
-                ))
+                papers_resp.Papers.append(self._paper_to_proto(paper))
+
+            if request.Chat_id > 0:
+                self.chat_service.record_chat_message(
+                    request.Chat_id,
+                    request.Input_data,
+                    matching_papers,
+                )
             return papers_resp
         except Exception as e:
             self.logger.error("SearchPaper failed", error=str(e))
@@ -71,9 +55,29 @@ class SemanticServiceHandlerGrpc(service_pb2_grpc.SemanticServiceServicer):
             Error=""
         )
     def CreateNewChat(self, request: service_pb2.Chat, context: grpc.ServicerContext)->service_pb2.ChatResp:
-        return super().CreateNewChat(request, context) 
-    def GetChatHistory(self, request: service_pb2.HistoryReq, context: grpc.ServicerContext)->service_pb2.ChatsResp:
-        return super().GetChatHistory(request, context)
+        self.logger.info(f"CreateNewChat request: user_id={request.User_id}")
+        try:
+            chat = self.chat_service.create_chat(request.User_id, title=request.Title)
+            return service_pb2.ChatResp(Chat=self._chat_to_proto(chat))
+        except Exception as e:
+            self.logger.error("CreateNewChat failed", error=str(e))
+            context.set_code(grpc.StatusCode.INTERNAL)
+            context.set_details(str(e))
+            return service_pb2.ChatResp()
+
+    def GetChatHistory(self, request: service_pb2.HistoryReq, context: grpc.ServicerContext)->service_pb2.HistoryResp:
+        self.logger.info(f"GetChatHistory request: chat_id={request.Chat_id}")
+        try:
+            history = self.chat_service.get_chat_history(request.Chat_id)
+            resp = service_pb2.HistoryResp()
+            for message in history:
+                resp.ChatMessages.append(self._chat_message_to_proto(message))
+            return resp
+        except Exception as e:
+            self.logger.error("GetChatHistory failed", error=str(e))
+            context.set_code(grpc.StatusCode.INTERNAL)
+            context.set_details(str(e))
+            return service_pb2.HistoryResp()
     def GetAuthorPapers(self, request: service_pb2.AuthorPaperReq, context: grpc.ServicerContext)->service_pb2.PapersResponse:
         return super().GetAuthorPapers(request, context)
     def GetAuthors(self, request: service_pb2.AuthorReq, context: grpc.ServicerContext)->service_pb2.AuthorsResp:
@@ -81,10 +85,94 @@ class SemanticServiceHandlerGrpc(service_pb2_grpc.SemanticServiceServicer):
     def GetInstitutions(self, request: service_pb2.InstitutionReq, context: grpc.ServicerContext)->service_pb2.InstitutionsResp:
         return super().GetInstitutions(request, context)
     def GetUserChats(self, request: service_pb2.UserChatsReq, context: grpc.ServicerContext)->service_pb2.ChatsResp:
-        return super().GetUserChats(request, context)
-    def UpdateChat(self, request: service_pb2.UpdateChatReq, context: grpc.ServicerContext)->service_pb2.ChatResp:
-        return super().UpdateChat(request, context)
+        self.logger.info(f"GetUserChats request: user_id={request.User_id}")
+        try:
+            chats = self.chat_service.get_user_chats(request.User_id)
+            resp = service_pb2.ChatsResp()
+            for chat in chats:
+                resp.Chats.append(self._chat_to_proto(chat))
+            return resp
+        except Exception as e:
+            self.logger.error("GetUserChats failed", error=str(e))
+            context.set_code(grpc.StatusCode.INTERNAL)
+            context.set_details(str(e))
+            return service_pb2.ChatsResp()
+
+    def UpdateChat(self, request: service_pb2.Chat, context: grpc.ServicerContext)->service_pb2.ChatResp:
+        self.logger.info(f"UpdateChat request: chat_id={request.Chat_id}")
+        try:
+            chat = self.chat_service.update_chat(
+                ChatModel(request.Chat_id, None, None, request.Title)
+            )
+            return service_pb2.ChatResp(Chat=self._chat_to_proto(chat))
+        except RuntimeError as e:
+            self.logger.error("UpdateChat failed", error=str(e))
+            context.set_code(grpc.StatusCode.NOT_FOUND)
+            context.set_details(str(e))
+            return service_pb2.ChatResp()
+        except Exception as e:
+            self.logger.error("UpdateChat failed", error=str(e))
+            context.set_code(grpc.StatusCode.INTERNAL)
+            context.set_details(str(e))
+            return service_pb2.ChatResp()
     def AddAuthor(self, request: service_pb2.Author, context: grpc.ServicerContext)->service_pb2.ErrorResponse:
         return super().AddAuthor(request, context)
     def AddInstitution(self, request: service_pb2.Institution, context: grpc.ServicerContext)->service_pb2.ErrorResponse:
         return super().AddInstitution(request, context)
+
+    @staticmethod
+    def _to_str(value) -> str:
+        try:
+            return "" if value is None else str(value)
+        except Exception:
+            return ""
+
+    @staticmethod
+    def _to_int(value) -> int:
+        try:
+            if value is None:
+                return 0
+            if isinstance(value, float) and math.isnan(value):
+                return 0
+            return int(value)
+        except Exception:
+            try:
+                return int(float(value))
+            except Exception:
+                return 0
+
+    @classmethod
+    def _paper_to_proto(cls, paper: PaperModel) -> service_pb2.PaperResponse:
+        return service_pb2.PaperResponse(
+            ID=cls._to_str(paper.ID),
+            Title=cls._to_str(paper.Title),
+            Abstract=cls._to_str(paper.Abstract),
+            Year=cls._to_int(paper.Year),
+            Best_oa_location=cls._to_str(paper.Best_oa_location),
+        )
+
+    @classmethod
+    def _chat_to_proto(cls, chat: ChatModel) -> service_pb2.Chat:
+        updated_at = ""
+        if getattr(chat, "updated_at", None) is not None:
+            updated_at = cls._to_str(chat.updated_at)
+        return service_pb2.Chat(
+            Chat_id=cls._to_int(chat.id),
+            User_id=cls._to_int(chat.user_id),
+            Updated_at=updated_at,
+            Title=cls._to_str(chat.title),
+        )
+
+    @classmethod
+    def _chat_message_to_proto(cls, message: ChatMessage) -> service_pb2.ChatMessage:
+        papers = service_pb2.PapersResponse()
+        for paper in message.papers:
+            papers.Papers.append(cls._paper_to_proto(paper))
+        created_at = ""
+        if getattr(message, "created_at", None) is not None:
+            created_at = cls._to_str(message.created_at)
+        return service_pb2.ChatMessage(
+            Search_query=cls._to_str(message.search_query),
+            Created_at=created_at,
+            papers=papers,
+        )
