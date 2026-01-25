@@ -1,4 +1,4 @@
-# Сервис семантического поиска по OpenAlex
+# Сервис семантического поиска ALib
 
 Сервис для семантического поиска научных публикаций на основе корпуса OpenAlex. Тексты статей кодируются трансформером E5, векторный индекс строится в FAISS, метаданные и связи хранятся в PostgreSQL. Доступ к поиску предоставляется по gRPC.
 
@@ -6,7 +6,7 @@
 - Многоязычная модель: `intfloat/multilingual-e5-large` (поддержка LoRA-адаптера)
 - Векторный индекс FAISS (IVF+PQ или Flat), хранение эмбеддингов в memmap
 - PostgreSQL схема с авторами, организациями, идентификаторами, ссылками и двунаправленными/однонаправленными связями между работами
-- Пайплайн: загрузка OpenAlex → очистка/нормализация → загрузка в БД → генерация эмбеддингов → построение FAISS индекса
+- Пайплайн: загрузка OpenAlex -> очистка/нормализация -> загрузка в БД -> генерация эмбеддингов -> построение FAISS индекса
 - gRPC API с методом семантического поиска статей
 
 
@@ -20,7 +20,7 @@
    - `FAISS_INDEX_PATH=data/index/faiss_both.index`
    - `FAISS_DOC_IDS_PATH=data/index/doc_ids_both.npy`
 
-2) Запустите стэк:
+2) Запустите стек:
    - `docker compose up -d --build`
 
 3) Проверка состояния:
@@ -29,20 +29,20 @@
 
 В Compose включено:
 - `postgres` (PostgreSQL 17)
-- `migrator` — применяет миграции (`db/migrations`) перед запуском сервиса
-- `semantic-search` — сам gRPC‑сервис (см. `cmd/main.py`)
-- `pipeline-worker` (опционально) — фоновый воркер пайплайна (ожидает сигнал) 
+- `migrator` - применяет миграции (`db/migrations`) перед запуском сервиса
+- `semantic-search` - сам gRPC-сервис (см. `cmd/main.py`)
+- `pipeline-worker` (опционально) - фоновый воркер пайплайна (ожидает сигнал)
 
 Примонтированные тома
-- `./data` → `/app/data` (индексы и артефакты пайплайна)
-- `hf-cache` → `/cache/huggingface` (кэш моделей HF)
+- `./data` -> `/app/data` (индексы и артефакты пайплайна)
+- `hf-cache` -> `/cache/huggingface` (кэш моделей HF)
 
 
 ## Локальный запуск (без Docker)
 
 Требования
 - Python 3.12
-- Postgres 14+ (в примерах — 17)
+- Postgres 14+
 
 1) Установите зависимости
 ```
@@ -53,12 +53,12 @@ pip install -r requirements.txt
 ```
 
 2) Примените миграции БД (варианты)
-- Docker‑миграции (проще): `docker compose run --rm migrator`
+- Docker-миграции (проще): `docker compose run --rm migrator`
 - Локально: примените файлы из `db/migrations` вручную или используйте любой совместимый мигратор
 
 3) Укажите переменные окружения (`.env` или env):
 - `DB_HOST`, `DB_PORT`, `DB_USER`, `DB_PASSWORD`, `DB_NAME`
-- `FAISS_INDEX_PATH`, `FAISS_DOC_IDS_PATH` (см. раздел «Данные и индексы»)
+- `FAISS_INDEX_PATH`, `FAISS_DOC_IDS_PATH` (см. раздел "Данные и индексы")
 
 4) Запустите сервис
 ```
@@ -69,8 +69,8 @@ python cmd/main.py
 ## Данные и индексы
 
 Готовые артефакты (пример):
-- `data/index/faiss_both.index` — FAISS‑индекс
-- `data/index/doc_ids_both.npy` — соответствия позиций в индексе → `paper_id`
+- `data/index/faiss_both.index` - FAISS-индекс
+- `data/index/doc_ids_both.npy` - соответствия позиций в индексе -> `paper_id`
 
 Если индексов нет, постройте их пайплайном (см. ниже) или положите подготовленные файлы в `data/index` и укажите пути в `.env`.
 
@@ -106,14 +106,14 @@ python src/parser/load_openalex_to_db.py \
 ```
 python src/parser/e5_embed_corpus.py \
   --outdir data/index \
-  [--where "language = 'en'" | другие SQL‑фильтры] \
+  [--where "language = 'en'" | другие SQL-фильтры] \
   [--limit 100000] \
   [--model intfloat/multilingual-e5-large] \
   [--lora-dir path/to/lora]
 ```
 Результат: `doc_embeddings.f16.memmap` (+ `.shape.json`) и `doc_ids.npy` в указанной директории.
 
-5) Построение FAISS‑индекса
+5) Построение FAISS-индекса
 ```
 python src/parser/e5_build_faiss.py \
   --emb-dir data/index \
@@ -125,7 +125,7 @@ python src/parser/e5_build_faiss.py \
 
 Оркестратор пайплайна
 - `scripts/run_pipeline.py --mode once` запустит последовательность шагов из `src/pipeline/runner.py`.
-- `scripts/run_pipeline.py --mode serve` запустит `PipelineWorker`, который ждёт POSIX‑сигнал и по событию запускает пайплайн.
+- `scripts/run_pipeline.py --mode serve` запустит `PipelineWorker`, который ждёт POSIX-сигнал и по событию запускает пайплайн.
 
 
 ## gRPC API
@@ -138,10 +138,10 @@ Proto: `proto/service.proto`
   - `AddPaper(AddRequest) -> AddPaperResponse`
 
 Сообщения
-- `SearchRequest` — поле `Input_data: string` (текст запроса)
-- `PaperResponse` — `ID, Title, Abstract, Year, Best_oa_location`
-- `PapersResponse` — repeated `PaperResponse Papers`
-- `AddRequest` — поля статьи + списки `Referenced_works`/`Related_works` (идентификаторы OpenAlex). Сервер пока не реализует сохранение, метод возвращает `Error = ""`.
+- `SearchRequest` - поле `Input_data: string` (текст запроса)
+- `PaperResponse` - `ID, Title, Abstract, Year, Best_oa_location`
+- `PapersResponse` - repeated `PaperResponse Papers`
+- `AddRequest` - поля статьи + списки `Referenced_works`/`Related_works` (идентификаторы OpenAlex). Сервер пока не реализует сохранение, метод возвращает `Error = ""`.
 
 Пример клиента (Python)
 ```
@@ -179,7 +179,7 @@ python -m grpc_tools.protoc `
 
 ## Архитектура и ключевые компоненты
 
-- Вход: текст запроса → кодируется E5 (`SemanticEncoder`) → поиск ближайших соседей в FAISS (`FaissIndex`) → извлечение метаданных из Postgres (`PaperRepository`) → ответ gRPC.
+- Вход: текст запроса -> кодируется E5 (`SemanticEncoder`) -> поиск ближайших соседей в FAISS (`FaissIndex`) -> извлечение метаданных из Postgres (`PaperRepository`) -> ответ gRPC.
 
 Исходники:
 - Точка входа сервиса: `cmd/main.py`
@@ -193,9 +193,9 @@ python -m grpc_tools.protoc `
 
 ## Тонкости и производительность
 
-- GPU: при наличии CUDA PyTorch выберет GPU автоматически; на CPU генерация эмбеддингов заметно медленнее. Для CUDA‑колёс используйте документацию PyTorch (см. комментарий в `requirements.txt`).
+- GPU: при наличии CUDA PyTorch выберет GPU автоматически; на CPU генерация эмбеддингов заметно медленнее. Для CUDA-колёс используйте документацию PyTorch (см. комментарий в `requirements.txt`).
 - EMBEDDING_BATCH_SIZE: можно увеличить на GPU, уменьшать на CPU при нехватке памяти.
-- Тип индекса: для больших корпусов используйте `ivfpq` с тренировкой на поднаборах (`--train-size`). Для максимальной точности — `flat`.
+- Тип индекса: для больших корпусов используйте `ivfpq` с тренировкой на поднаборах (`--train-size`). Для максимальной точности - `flat`.
 
 
 ## Тестирование и отладка
@@ -206,22 +206,22 @@ python -m grpc_tools.protoc `
 
 ## Структура репозитория (кратко)
 
-- `cmd/main.py` — запуск gRPC‑сервиса
-- `proto/service.proto` — описание API
-- `src/services/search/*` — поиск (FAISS, ранжирование, сервис)
-- `src/al_models/e5/*` — обёртка над моделью E5
-- `src/storage/*`, `src/db/*` — работа с БД
-- `src/parser/*` — скрипты пайплайна (OpenAlex → БД → эмбеддинги → индекс)
-- `db/migrations` — миграции PostgreSQL
-- `docker-compose.yml`, `Dockerfile` — контейнеризация
-- `scripts/*` — утилиты (pipeline runner, healthcheck)
+- `cmd/main.py` - запуск gRPC-сервиса
+- `proto/service.proto` - описание API
+- `src/services/search/*` - поиск (FAISS, ранжирование, сервис)
+- `src/al_models/e5/*` - обёртка над моделью E5
+- `src/storage/*`, `src/db/*` - работа с БД
+- `src/parser/*` - скрипты пайплайна (OpenAlex -> БД -> эмбеддинги -> индекс)
+- `db/migrations` - миграции PostgreSQL
+- `docker-compose.yml`, `Dockerfile` - контейнеризация
+- `scripts/*` - утилиты (pipeline runner, healthcheck)
 
 
 ## Ограничения и планы
 
 - `AddPaper` пока не реализован сервером (заглушка в `grpc_handler.py`), запись в БД/индекс требует отдельной реализации.
-- Реализация создания чатов их истории и ее получения
-- Постройка индекса с опорой на внешее цитирование, а не только на текстовое содержание
+- Реализация создания чатов, хранения истории и ее получения
+- Постройка индекса с опорой на внешнее цитирование, а не только на текстовое содержание
 
 
 ## Ссылки на исходники
