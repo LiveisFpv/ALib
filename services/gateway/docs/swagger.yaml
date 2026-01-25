@@ -1,0 +1,385 @@
+basePath: /api
+definitions:
+  presenters.AddPaperRequest:
+    properties:
+      abstract:
+        type: string
+      best_oa_location:
+        type: string
+      id:
+        type: string
+      referenced_paper:
+        items:
+          $ref: '#/definitions/presenters.ReferencedPaper'
+        type: array
+      related_paper:
+        items:
+          $ref: '#/definitions/presenters.RelatedPaper'
+        type: array
+      title:
+        type: string
+      year:
+        type: integer
+    type: object
+  presenters.ChatHistoryCreateRequest:
+    properties:
+      text:
+        type: string
+    required:
+    - text
+    type: object
+  presenters.ChatHistoryMessage:
+    properties:
+      created_at:
+        type: string
+      papers:
+        items:
+          $ref: '#/definitions/presenters.Paper'
+        type: array
+      search_query:
+        type: string
+    type: object
+  presenters.ChatHistoryResponse:
+    properties:
+      chat_messages:
+        items:
+          $ref: '#/definitions/presenters.ChatHistoryMessage'
+        type: array
+    type: object
+  presenters.ChatResponse:
+    properties:
+      chat_id:
+        type: integer
+      title:
+        type: string
+      updated_at:
+        type: string
+      user_id:
+        type: integer
+    type: object
+  presenters.ChatsResponse:
+    properties:
+      chats:
+        items:
+          $ref: '#/definitions/presenters.ChatResponse'
+        type: array
+    type: object
+  presenters.CreateChatRequest:
+    properties:
+      title:
+        type: string
+      user_id:
+        type: integer
+    type: object
+  presenters.ErrorResponse:
+    properties:
+      error:
+        type: string
+    type: object
+  presenters.Paper:
+    properties:
+      abstract:
+        type: string
+      best_oa_location:
+        type: string
+      id:
+        type: string
+      title:
+        type: string
+      year:
+        type: integer
+    type: object
+  presenters.ReferencedPaper:
+    properties:
+      id:
+        type: string
+    type: object
+  presenters.RelatedPaper:
+    properties:
+      id:
+        type: string
+    type: object
+  presenters.SearchPaperResponse:
+    properties:
+      papers:
+        items:
+          $ref: '#/definitions/presenters.Paper'
+        type: array
+    type: object
+host: localhost:8080
+info:
+  contact: {}
+  description: ALib для поиска различной научной информации
+  title: ALib API
+  version: "0.1"
+paths:
+  /ai/paper/add:
+    post:
+      consumes:
+      - application/json
+      description: Add a paper to the index
+      parameters:
+      - description: Paper data
+        in: body
+        name: data
+        required: true
+        schema:
+          $ref: '#/definitions/presenters.AddPaperRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/presenters.ErrorResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/presenters.ErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/presenters.ErrorResponse'
+      summary: Add paper
+      tags:
+      - ai
+  /chats:
+    get:
+      consumes:
+      - application/json
+      description: Get all chats for a user
+      parameters:
+      - description: User ID
+        in: query
+        name: user_id
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/presenters.ChatsResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/presenters.ErrorResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/presenters.ErrorResponse'
+        "403":
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/presenters.ErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/presenters.ErrorResponse'
+      summary: Get user chats
+      tags:
+      - chat
+    post:
+      consumes:
+      - application/json
+      description: Create a new chat for the user
+      parameters:
+      - description: Chat data
+        in: body
+        name: data
+        required: true
+        schema:
+          $ref: '#/definitions/presenters.CreateChatRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/presenters.ChatResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/presenters.ErrorResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/presenters.ErrorResponse'
+        "403":
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/presenters.ErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/presenters.ErrorResponse'
+      summary: Create chat
+      tags:
+      - chat
+  /chats/{chat_id}:
+    delete:
+      consumes:
+      - application/json
+      description: Delete chat by owner
+      parameters:
+      - description: Chat ID
+        in: path
+        name: chat_id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/presenters.ErrorResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/presenters.ErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/presenters.ErrorResponse'
+      summary: Delete chat
+      tags:
+      - chat
+    put:
+      consumes:
+      - application/json
+      description: Update chat title by owner (user)
+      parameters:
+      - description: Chat ID
+        in: path
+        name: chat_id
+        required: true
+        type: integer
+      - description: Chat data
+        in: body
+        name: data
+        required: true
+        schema:
+          $ref: '#/definitions/presenters.CreateChatRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/presenters.ChatResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/presenters.ErrorResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/presenters.ErrorResponse'
+        "403":
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/presenters.ErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/presenters.ErrorResponse'
+      summary: Update chat title
+      tags:
+      - chat
+  /chats/{chat_id}/history:
+    get:
+      consumes:
+      - application/json
+      description: Get chat history by chat ID
+      parameters:
+      - description: Chat ID
+        in: path
+        name: chat_id
+        required: true
+        type: integer
+      - description: User ID
+        in: query
+        name: user_id
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/presenters.ChatHistoryResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/presenters.ErrorResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/presenters.ErrorResponse'
+        "403":
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/presenters.ErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/presenters.ErrorResponse'
+      summary: Get chat history
+      tags:
+      - chat
+    post:
+      consumes:
+      - application/json
+      description: Create a new chat history entry by chat ID and search text
+      parameters:
+      - description: Chat ID
+        in: path
+        name: chat_id
+        required: true
+        type: integer
+      - description: User ID
+        in: query
+        name: user_id
+        type: integer
+      - description: Search query
+        in: body
+        name: data
+        required: true
+        schema:
+          $ref: '#/definitions/presenters.ChatHistoryCreateRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/presenters.SearchPaperResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/presenters.ErrorResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/presenters.ErrorResponse'
+        "403":
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/presenters.ErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/presenters.ErrorResponse'
+      summary: Add chat history entry
+      tags:
+      - chat
+swagger: "2.0"
