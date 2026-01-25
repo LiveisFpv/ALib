@@ -1,0 +1,138 @@
+syntax = "proto3";
+
+package semantic;
+
+service SemanticService{
+    rpc GetInstitutions (InstitutionReq) returns (InstitutionsResp); // End
+    rpc AddInstitution (Institution) returns (ErrorResponse); // End
+    rpc GetAuthors(AuthorReq) returns (AuthorsResp); 
+    rpc AddAuthor(Author) returns (ErrorResponse);
+    rpc GetChatHistory(HistoryReq) returns (HistoryResp); // Done
+    rpc CreateNewChat(Chat) returns (ChatResp); // Done
+    rpc UpdateChat(UpdateChatReq) returns (ChatResp); // Done
+    rpc DeleteChat(DeleteChatReq) returns (ErrorResponse); // Done
+    rpc GetUserChats(UserChatsReq) returns (ChatsResp); // Done
+    rpc GetAuthorPapers (AuthorPaperReq) returns (PapersResponse);
+    rpc SearchPaper (SearchRequest) returns (PapersResponse); // Done
+    rpc AddPaper (AddRequest) returns (ErrorResponse); 
+}
+
+message InstitutionReq {
+    string Query = 1;
+}
+
+message InstitutionsResp{
+    repeated Institution Institutions = 1;
+}
+
+message Institution{
+    int64 Institution_id = 1;
+    string Name = 2;
+    string Country = 3;
+    string Ror_id = 4;
+    string Grid_id = 5;
+}
+
+message AuthorReq{
+    string Query = 1;
+}
+
+message AuthorsResp{
+    repeated Author Authors = 1;
+}
+
+message Author {
+    string First_name = 1;
+    string Last_name = 2;
+    string Middle_name = 3;
+    string Orcid = 4;
+    int64 Author_id = 5;
+}
+
+message HistoryReq {
+    int64 Chat_id = 1;
+}
+
+message HistoryResp {
+    repeated ChatMessage ChatMessages = 1;
+}
+
+message ChatMessage{
+    string Search_query = 1;
+    string Created_at = 2;
+    PapersResponse papers = 3;
+}
+
+message UserChatsReq {
+    int64 User_id = 1;
+}
+
+message DeleteChatReq {
+    int64 Chat_id = 1;
+    int64 User_id = 2;
+}
+
+message Chat {
+    int64 Chat_id = 1;
+    int64 User_id = 2;
+    string Updated_at = 3;
+    string Title = 4;
+}
+
+message UpdateChatReq {
+    int64 Chat_id = 1;
+    string Title = 2;
+    int64 User_id = 3;
+}
+
+message ChatsResp {
+    repeated Chat Chats = 1;
+}
+
+message ChatResp{
+    Chat Chat = 1;
+}
+
+message SearchRequest{
+    string Input_data = 1;
+    int64 Chat_id = 2;
+}
+
+message AuthorPaperReq{
+    int64 Author_ID = 1;
+    string State = 2;
+}
+
+message PaperResponse{
+    string ID = 1;
+    string Title = 2;
+    string Abstract = 3;
+    int64 Year = 4;
+    string Best_oa_location = 5;
+}
+message PapersResponse{
+    repeated PaperResponse Papers = 1;
+}
+
+message AddRequest{
+    string ID = 1;
+    string Title = 2;
+    string Abstract = 3;
+    int64 Year = 4;
+    string Best_oa_location = 5;
+    repeated Referenced_works Referenced_works = 6;
+    repeated Related_works Related_works = 7;
+    string State = 8;
+}
+
+message Referenced_works{
+    string ID = 1;
+}
+
+message Related_works{
+    string ID = 1;
+}
+
+message ErrorResponse{
+    string Error = 1;
+}
