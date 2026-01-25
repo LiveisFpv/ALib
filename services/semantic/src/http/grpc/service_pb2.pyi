@@ -86,6 +86,12 @@ class UserChatsReq(_message.Message):
     User_id: int
     def __init__(self, User_id: _Optional[int] = ...) -> None: ...
 
+class DeleteChatReq(_message.Message):
+    __slots__ = ("Chat_id",)
+    CHAT_ID_FIELD_NUMBER: _ClassVar[int]
+    Chat_id: int
+    def __init__(self, Chat_id: _Optional[int] = ...) -> None: ...
+
 class Chat(_message.Message):
     __slots__ = ("Chat_id", "User_id", "Updated_at", "Title")
     CHAT_ID_FIELD_NUMBER: _ClassVar[int]

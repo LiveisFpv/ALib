@@ -155,6 +155,16 @@ for p in resp.Papers:
     print(p.Title, p.Year, p.Best_oa_location)
 ```
 
+Генерация по proto
+
+```
+python -m grpc_tools.protoc `
+  -I proto `
+  --python_out=src/http/grpc `
+  --grpc_python_out=src/http/grpc `
+  --pyi_out=src/http/grpc `
+  proto/service.proto
+```
 
 ## Конфигурация (переменные окружения)
 
