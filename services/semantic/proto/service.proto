@@ -9,8 +9,8 @@ service SemanticService{
     rpc AddAuthor(Author) returns (ErrorResponse);
     rpc GetChatHistory(HistoryReq) returns (HistoryResp); // Done
     rpc CreateNewChat(Chat) returns (ChatResp); // Done
-    rpc UpdateChat(UpdateChatReq) returns (ChatResp); // Next
-    rpc DeleteChat(DeleteChatReq) returns (ErrorResponse); // Next
+    rpc UpdateChat(UpdateChatReq) returns (ChatResp); // Done
+    rpc DeleteChat(DeleteChatReq) returns (ErrorResponse); // Done
     rpc GetUserChats(UserChatsReq) returns (ChatsResp); // Done
     rpc GetAuthorPapers (AuthorPaperReq) returns (PapersResponse);
     rpc SearchPaper (SearchRequest) returns (PapersResponse); // Done

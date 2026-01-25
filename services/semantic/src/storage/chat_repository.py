@@ -45,16 +45,17 @@ class ChatRepository:
             raise RuntimeError("Chat not found")
         return ChatModel(row["chat_id"], row["user_id"], row["updated_at"], row["title"])
 
-    def delete_chat(self, chat_id:int ,user_id: int)->str|None:
-        with psycopg.connect(self.dsn,row_factory=dict_row) as conn:
+    def delete_chat(self, chat_id: int, user_id: int) -> str | None:
+        with psycopg.connect(self.dsn, row_factory=dict_row) as conn:
             query = """
-                DELETE chat WHERE chat_id = %s and user_id = %s
+                DELETE FROM chat 
+                WHERE chat_id = %s AND user_id = %s
             """
             with conn.cursor() as cur:
-                cur.execute(query,chat_id,user_id)
-                row = cur.fetchone()
-            if not row:
-                raise RuntimeError("Chat doesn't delete")
+                cur.execute(query, (chat_id, user_id))
+                if cur.rowcount == 0:
+                    raise RuntimeError("Chat doesn't exist or user doesn't have permission")
+            conn.commit()
         return None
 
     def create_chat_message(self, chat_id: int, search_query: str, papers: List[PaperModel]) -> ChatMessage:
