@@ -54,6 +54,7 @@ class SemanticServiceHandlerGrpc(service_pb2_grpc.SemanticServiceServicer):
         return service_pb2.ErrorResponse(
             Error=""
         )
+    
     def CreateNewChat(self, request: service_pb2.Chat, context: grpc.ServicerContext)->service_pb2.ChatResp:
         self.logger.info(f"CreateNewChat request: user_id={request.User_id}")
         try:
@@ -78,12 +79,32 @@ class SemanticServiceHandlerGrpc(service_pb2_grpc.SemanticServiceServicer):
             context.set_code(grpc.StatusCode.INTERNAL)
             context.set_details(str(e))
             return service_pb2.HistoryResp()
+    
+    def DeleteChat(self, request: service_pb2.DeleteChatReq, context:grpc.ServicerContext)->service_pb2.ErrorResponse:
+        self.logger.info(f"DeleteChat request: chat_id={request.Chat_id} by user_id={request.User_id}")
+        try:
+            _ = self.chat_service.delete_chat(request.Chat_id,request.User_id)
+            return service_pb2.ErrorResponse()
+        except RuntimeError as e:
+            self.logger.error("Delete Chat failed", error=str(e))
+            context.set_code(grpc.StatusCode.NOT_FOUND)
+            context.set_details(str(e))
+            return service_pb2.ErrorResponse(Error=str(e))
+        except Exception as e:
+            self.logger.error("Delete Chat failed", error=str(e))
+            context.set_code(grpc.StatusCode.INTERNAL)
+            context.set_details(str(e))
+            return service_pb2.ErrorResponse(Error=str(e))
+
     def GetAuthorPapers(self, request: service_pb2.AuthorPaperReq, context: grpc.ServicerContext)->service_pb2.PapersResponse:
         return super().GetAuthorPapers(request, context)
+    
     def GetAuthors(self, request: service_pb2.AuthorReq, context: grpc.ServicerContext)->service_pb2.AuthorsResp:
         return super().GetAuthors(request, context)
+    
     def GetInstitutions(self, request: service_pb2.InstitutionReq, context: grpc.ServicerContext)->service_pb2.InstitutionsResp:
         return super().GetInstitutions(request, context)
+    
     def GetUserChats(self, request: service_pb2.UserChatsReq, context: grpc.ServicerContext)->service_pb2.ChatsResp:
         self.logger.info(f"GetUserChats request: user_id={request.User_id}")
         try:
@@ -98,11 +119,11 @@ class SemanticServiceHandlerGrpc(service_pb2_grpc.SemanticServiceServicer):
             context.set_details(str(e))
             return service_pb2.ChatsResp()
 
-    def UpdateChat(self, request: service_pb2.Chat, context: grpc.ServicerContext)->service_pb2.ChatResp:
+    def UpdateChat(self, request: service_pb2.UpdateChatReq, context: grpc.ServicerContext)->service_pb2.ChatResp:
         self.logger.info(f"UpdateChat request: chat_id={request.Chat_id}")
         try:
             chat = self.chat_service.update_chat(
-                ChatModel(request.Chat_id, None, None, request.Title)
+                ChatModel(request.Chat_id, request.User_id, None, request.Title)
             )
             return service_pb2.ChatResp(Chat=self._chat_to_proto(chat))
         except RuntimeError as e:
@@ -115,8 +136,10 @@ class SemanticServiceHandlerGrpc(service_pb2_grpc.SemanticServiceServicer):
             context.set_code(grpc.StatusCode.INTERNAL)
             context.set_details(str(e))
             return service_pb2.ChatResp()
+    
     def AddAuthor(self, request: service_pb2.Author, context: grpc.ServicerContext)->service_pb2.ErrorResponse:
         return super().AddAuthor(request, context)
+    
     def AddInstitution(self, request: service_pb2.Institution, context: grpc.ServicerContext)->service_pb2.ErrorResponse:
         return super().AddInstitution(request, context)
 

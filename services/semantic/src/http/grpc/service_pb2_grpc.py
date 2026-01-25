@@ -66,7 +66,7 @@ class SemanticServiceStub(object):
                 _registered_method=True)
         self.UpdateChat = channel.unary_unary(
                 '/semantic.SemanticService/UpdateChat',
-                request_serializer=service__pb2.Chat.SerializeToString,
+                request_serializer=service__pb2.UpdateChatReq.SerializeToString,
                 response_deserializer=service__pb2.ChatResp.FromString,
                 _registered_method=True)
         self.DeleteChat = channel.unary_unary(
@@ -214,7 +214,7 @@ def add_SemanticServiceServicer_to_server(servicer, server):
             ),
             'UpdateChat': grpc.unary_unary_rpc_method_handler(
                     servicer.UpdateChat,
-                    request_deserializer=service__pb2.Chat.FromString,
+                    request_deserializer=service__pb2.UpdateChatReq.FromString,
                     response_serializer=service__pb2.ChatResp.SerializeToString,
             ),
             'DeleteChat': grpc.unary_unary_rpc_method_handler(
@@ -430,7 +430,7 @@ class SemanticService(object):
             request,
             target,
             '/semantic.SemanticService/UpdateChat',
-            service__pb2.Chat.SerializeToString,
+            service__pb2.UpdateChatReq.SerializeToString,
             service__pb2.ChatResp.FromString,
             options,
             channel_credentials,

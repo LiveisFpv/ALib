@@ -20,6 +20,9 @@ class ChatService:
 
     def update_chat(self, chat:ChatModel)->ChatModel:
         return self.repository.update_chat(chat)
+    
+    def delete_chat(self, chat_id:int,user_id:int)->str|None:
+        return self.repository.delete_chat(chat_id,user_id)
 
     def get_chat_history(self, chat_id:int)->List[ChatMessage]:
         return self.repository.get_chat_history(chat_id)

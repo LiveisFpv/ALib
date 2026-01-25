@@ -35,15 +35,27 @@ class ChatRepository:
                 UPDATE chat
                 SET title = COALESCE(%s, title),
                     updated_at = NOW()
-                WHERE chat_id = %s
+                WHERE chat_id = %s and user_id = %s
                 RETURNING chat_id, user_id, updated_at, title
             """
             with conn.cursor() as cur:
-                cur.execute(query, (title_value, chat.id))
+                cur.execute(query, (title_value, chat.id, chat.user_id))
                 row = cur.fetchone()
         if not row:
             raise RuntimeError("Chat not found")
         return ChatModel(row["chat_id"], row["user_id"], row["updated_at"], row["title"])
+
+    def delete_chat(self, chat_id:int ,user_id: int)->str|None:
+        with psycopg.connect(self.dsn,row_factory=dict_row) as conn:
+            query = """
+                DELETE chat WHERE chat_id = %s and user_id = %s
+            """
+            with conn.cursor() as cur:
+                cur.execute(query,chat_id,user_id)
+                row = cur.fetchone()
+            if not row:
+                raise RuntimeError("Chat doesn't delete")
+        return None
 
     def create_chat_message(self, chat_id: int, search_query: str, papers: List[PaperModel]) -> ChatMessage:
         with psycopg.connect(self.dsn, row_factory=dict_row) as conn:
