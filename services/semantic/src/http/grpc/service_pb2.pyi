@@ -86,6 +86,14 @@ class UserChatsReq(_message.Message):
     User_id: int
     def __init__(self, User_id: _Optional[int] = ...) -> None: ...
 
+class DeleteChatReq(_message.Message):
+    __slots__ = ("Chat_id", "User_id")
+    CHAT_ID_FIELD_NUMBER: _ClassVar[int]
+    USER_ID_FIELD_NUMBER: _ClassVar[int]
+    Chat_id: int
+    User_id: int
+    def __init__(self, Chat_id: _Optional[int] = ..., User_id: _Optional[int] = ...) -> None: ...
+
 class Chat(_message.Message):
     __slots__ = ("Chat_id", "User_id", "Updated_at", "Title")
     CHAT_ID_FIELD_NUMBER: _ClassVar[int]
@@ -99,12 +107,14 @@ class Chat(_message.Message):
     def __init__(self, Chat_id: _Optional[int] = ..., User_id: _Optional[int] = ..., Updated_at: _Optional[str] = ..., Title: _Optional[str] = ...) -> None: ...
 
 class UpdateChatReq(_message.Message):
-    __slots__ = ("Chat_id", "Title")
+    __slots__ = ("Chat_id", "Title", "User_id")
     CHAT_ID_FIELD_NUMBER: _ClassVar[int]
     TITLE_FIELD_NUMBER: _ClassVar[int]
+    USER_ID_FIELD_NUMBER: _ClassVar[int]
     Chat_id: int
     Title: str
-    def __init__(self, Chat_id: _Optional[int] = ..., Title: _Optional[str] = ...) -> None: ...
+    User_id: int
+    def __init__(self, Chat_id: _Optional[int] = ..., Title: _Optional[str] = ..., User_id: _Optional[int] = ...) -> None: ...
 
 class ChatsResp(_message.Message):
     __slots__ = ("Chats",)

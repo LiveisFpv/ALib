@@ -66,8 +66,13 @@ class SemanticServiceStub(object):
                 _registered_method=True)
         self.UpdateChat = channel.unary_unary(
                 '/semantic.SemanticService/UpdateChat',
-                request_serializer=service__pb2.Chat.SerializeToString,
+                request_serializer=service__pb2.UpdateChatReq.SerializeToString,
                 response_deserializer=service__pb2.ChatResp.FromString,
+                _registered_method=True)
+        self.DeleteChat = channel.unary_unary(
+                '/semantic.SemanticService/DeleteChat',
+                request_serializer=service__pb2.DeleteChatReq.SerializeToString,
+                response_deserializer=service__pb2.ErrorResponse.FromString,
                 _registered_method=True)
         self.GetUserChats = channel.unary_unary(
                 '/semantic.SemanticService/GetUserChats',
@@ -95,13 +100,15 @@ class SemanticServiceServicer(object):
     """Missing associated documentation comment in .proto file."""
 
     def GetInstitutions(self, request, context):
-        """Missing associated documentation comment in .proto file."""
+        """End
+        """
         context.set_code(grpc.StatusCode.UNIMPLEMENTED)
         context.set_details('Method not implemented!')
         raise NotImplementedError('Method not implemented!')
 
     def AddInstitution(self, request, context):
-        """Missing associated documentation comment in .proto file."""
+        """End
+        """
         context.set_code(grpc.StatusCode.UNIMPLEMENTED)
         context.set_details('Method not implemented!')
         raise NotImplementedError('Method not implemented!')
@@ -119,25 +126,36 @@ class SemanticServiceServicer(object):
         raise NotImplementedError('Method not implemented!')
 
     def GetChatHistory(self, request, context):
-        """Missing associated documentation comment in .proto file."""
+        """Done
+        """
         context.set_code(grpc.StatusCode.UNIMPLEMENTED)
         context.set_details('Method not implemented!')
         raise NotImplementedError('Method not implemented!')
 
     def CreateNewChat(self, request, context):
-        """Missing associated documentation comment in .proto file."""
+        """Done
+        """
         context.set_code(grpc.StatusCode.UNIMPLEMENTED)
         context.set_details('Method not implemented!')
         raise NotImplementedError('Method not implemented!')
 
     def UpdateChat(self, request, context):
-        """Missing associated documentation comment in .proto file."""
+        """Next
+        """
+        context.set_code(grpc.StatusCode.UNIMPLEMENTED)
+        context.set_details('Method not implemented!')
+        raise NotImplementedError('Method not implemented!')
+
+    def DeleteChat(self, request, context):
+        """Next
+        """
         context.set_code(grpc.StatusCode.UNIMPLEMENTED)
         context.set_details('Method not implemented!')
         raise NotImplementedError('Method not implemented!')
 
     def GetUserChats(self, request, context):
-        """Missing associated documentation comment in .proto file."""
+        """Done
+        """
         context.set_code(grpc.StatusCode.UNIMPLEMENTED)
         context.set_details('Method not implemented!')
         raise NotImplementedError('Method not implemented!')
@@ -149,7 +167,8 @@ class SemanticServiceServicer(object):
         raise NotImplementedError('Method not implemented!')
 
     def SearchPaper(self, request, context):
-        """Missing associated documentation comment in .proto file."""
+        """Done
+        """
         context.set_code(grpc.StatusCode.UNIMPLEMENTED)
         context.set_details('Method not implemented!')
         raise NotImplementedError('Method not implemented!')
@@ -195,8 +214,13 @@ def add_SemanticServiceServicer_to_server(servicer, server):
             ),
             'UpdateChat': grpc.unary_unary_rpc_method_handler(
                     servicer.UpdateChat,
-                    request_deserializer=service__pb2.Chat.FromString,
+                    request_deserializer=service__pb2.UpdateChatReq.FromString,
                     response_serializer=service__pb2.ChatResp.SerializeToString,
+            ),
+            'DeleteChat': grpc.unary_unary_rpc_method_handler(
+                    servicer.DeleteChat,
+                    request_deserializer=service__pb2.DeleteChatReq.FromString,
+                    response_serializer=service__pb2.ErrorResponse.SerializeToString,
             ),
             'GetUserChats': grpc.unary_unary_rpc_method_handler(
                     servicer.GetUserChats,
@@ -406,8 +430,35 @@ class SemanticService(object):
             request,
             target,
             '/semantic.SemanticService/UpdateChat',
-            service__pb2.Chat.SerializeToString,
+            service__pb2.UpdateChatReq.SerializeToString,
             service__pb2.ChatResp.FromString,
+            options,
+            channel_credentials,
+            insecure,
+            call_credentials,
+            compression,
+            wait_for_ready,
+            timeout,
+            metadata,
+            _registered_method=True)
+
+    @staticmethod
+    def DeleteChat(request,
+            target,
+            options=(),
+            channel_credentials=None,
+            call_credentials=None,
+            insecure=False,
+            compression=None,
+            wait_for_ready=None,
+            timeout=None,
+            metadata=None):
+        return grpc.experimental.unary_unary(
+            request,
+            target,
+            '/semantic.SemanticService/DeleteChat',
+            service__pb2.DeleteChatReq.SerializeToString,
+            service__pb2.ErrorResponse.FromString,
             options,
             channel_credentials,
             insecure,
