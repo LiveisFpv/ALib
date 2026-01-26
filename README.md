@@ -27,10 +27,10 @@ Frontend и Gateway интегрируются с внешним SSO по HTTP A
 ## Быстрый старт (локально)
 > [!TIP]
 > В репозитории есть отдельные `docker-compose.yml` внутри сервисов. Для запуска конкретного компонента перейдите в его каталог и следуйте README.
-- Frontend: `apps/frontend/README.md`
-- Gateway: `services/gateway/readme.md`
-- Semantic: `services/semantic/README.md`
-- ELK: `services/ELK/docker-compose.yml`
+- [Frontend](apps/frontend/README.md)
+- [Gateway](services/gateway/readme.md)
+- [Semantic](services/semantic/README.md)
+- [ELK stack](services/ELK/docker-compose.yml)
 ## Статус разработки
 1. [x] Сбор и обработка данных (публикации + цитирования).
 2. [x] Выбор нейросетевой модели.
