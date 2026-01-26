@@ -30,7 +30,7 @@ Frontend и Gateway интегрируются с внешним SSO по HTTP A
 - [Frontend](apps/frontend/README.md)
 - [Gateway](services/gateway/readme.md)
 - [Semantic](services/semantic/README.md)
-- [ELK stack](services/ELK/docker-compose.yml)
+- [ELK stack](services/ELK/README.md)
 ## Статус разработки
 1. [x] Сбор и обработка данных (публикации + цитирования).
 2. [x] Выбор нейросетевой модели.
