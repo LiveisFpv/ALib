@@ -56,9 +56,9 @@ func (p *paperService) AddPaper(ctx context.Context, paper *domain.Paper, refere
 	paper_r, err := p.SemanticClient.AddPaper(ctx, req)
 	if err != nil {
 		p.logger.WithError(err).Error("AI AddPaper RPC failed")
-	}
-	if _, ok := status.FromError(err); ok {
-		return nil, err
+		if _, ok := status.FromError(err); ok {
+			return nil, err
+		}
 	}
 	return &domain.Paper{
 		Id:               paper_r.ID,

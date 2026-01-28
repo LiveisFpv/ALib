@@ -13,7 +13,7 @@ service SemanticService{
     rpc DeleteChat(DeleteChatReq) returns (ErrorResponse); // Done
     rpc GetUserChats(UserChatsReq) returns (ChatsResp); // Done
     rpc GetAuthorPapers (AuthorPaperReq) returns (PapersResponse);
-    rpc SearchPaper (SearchRequest) returns (ChatMessage); // In progress
+    rpc SearchPaper (SearchRequest) returns (ChatMessage); // Done
     rpc AddPaper (AddRequest) returns (PaperResponse); 
 }
 
