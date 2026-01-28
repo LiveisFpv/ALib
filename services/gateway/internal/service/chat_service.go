@@ -73,7 +73,11 @@ func (c *chatService) DeleteChat(ctx context.Context, chat_id int, user_id int) 
 		}
 	}
 
-	return fmt.Errorf(resp.Error)
+	if resp.Error != "" {
+		return fmt.Errorf(resp.Error)
+	}
+
+	return nil
 }
 
 func (c *chatService) GetChatHistory(ctx context.Context, chat_id int, user_id int) ([]*domain.ChatHistoryMessage, error) {
