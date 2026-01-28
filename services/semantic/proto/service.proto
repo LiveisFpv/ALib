@@ -13,8 +13,8 @@ service SemanticService{
     rpc DeleteChat(DeleteChatReq) returns (ErrorResponse); // Done
     rpc GetUserChats(UserChatsReq) returns (ChatsResp); // Done
     rpc GetAuthorPapers (AuthorPaperReq) returns (PapersResponse);
-    rpc SearchPaper (SearchRequest) returns (PapersResponse); // Done
-    rpc AddPaper (AddRequest) returns (ErrorResponse); 
+    rpc SearchPaper (SearchRequest) returns (ChatMessage); // In progress
+    rpc AddPaper (AddRequest) returns (PaperResponse); 
 }
 
 message InstitutionReq {
@@ -51,6 +51,7 @@ message Author {
 
 message HistoryReq {
     int64 Chat_id = 1;
+    int64 User_id = 2;
 }
 
 message HistoryResp {
@@ -96,6 +97,7 @@ message ChatResp{
 message SearchRequest{
     string Input_data = 1;
     int64 Chat_id = 2;
+    int64 User_id = 3;
 }
 
 message AuthorPaperReq{
@@ -109,6 +111,7 @@ message PaperResponse{
     string Abstract = 3;
     int64 Year = 4;
     string Best_oa_location = 5;
+    string State = 6;
 }
 message PapersResponse{
     repeated PaperResponse Papers = 1;

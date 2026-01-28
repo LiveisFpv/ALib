@@ -59,10 +59,12 @@ class Author(_message.Message):
     def __init__(self, First_name: _Optional[str] = ..., Last_name: _Optional[str] = ..., Middle_name: _Optional[str] = ..., Orcid: _Optional[str] = ..., Author_id: _Optional[int] = ...) -> None: ...
 
 class HistoryReq(_message.Message):
-    __slots__ = ("Chat_id",)
+    __slots__ = ("Chat_id", "User_id")
     CHAT_ID_FIELD_NUMBER: _ClassVar[int]
+    USER_ID_FIELD_NUMBER: _ClassVar[int]
     Chat_id: int
-    def __init__(self, Chat_id: _Optional[int] = ...) -> None: ...
+    User_id: int
+    def __init__(self, Chat_id: _Optional[int] = ..., User_id: _Optional[int] = ...) -> None: ...
 
 class HistoryResp(_message.Message):
     __slots__ = ("ChatMessages",)
@@ -129,12 +131,14 @@ class ChatResp(_message.Message):
     def __init__(self, Chat: _Optional[_Union[Chat, _Mapping]] = ...) -> None: ...
 
 class SearchRequest(_message.Message):
-    __slots__ = ("Input_data", "Chat_id")
+    __slots__ = ("Input_data", "Chat_id", "User_id")
     INPUT_DATA_FIELD_NUMBER: _ClassVar[int]
     CHAT_ID_FIELD_NUMBER: _ClassVar[int]
+    USER_ID_FIELD_NUMBER: _ClassVar[int]
     Input_data: str
     Chat_id: int
-    def __init__(self, Input_data: _Optional[str] = ..., Chat_id: _Optional[int] = ...) -> None: ...
+    User_id: int
+    def __init__(self, Input_data: _Optional[str] = ..., Chat_id: _Optional[int] = ..., User_id: _Optional[int] = ...) -> None: ...
 
 class AuthorPaperReq(_message.Message):
     __slots__ = ("Author_ID", "State")
@@ -145,18 +149,20 @@ class AuthorPaperReq(_message.Message):
     def __init__(self, Author_ID: _Optional[int] = ..., State: _Optional[str] = ...) -> None: ...
 
 class PaperResponse(_message.Message):
-    __slots__ = ("ID", "Title", "Abstract", "Year", "Best_oa_location")
+    __slots__ = ("ID", "Title", "Abstract", "Year", "Best_oa_location", "State")
     ID_FIELD_NUMBER: _ClassVar[int]
     TITLE_FIELD_NUMBER: _ClassVar[int]
     ABSTRACT_FIELD_NUMBER: _ClassVar[int]
     YEAR_FIELD_NUMBER: _ClassVar[int]
     BEST_OA_LOCATION_FIELD_NUMBER: _ClassVar[int]
+    STATE_FIELD_NUMBER: _ClassVar[int]
     ID: str
     Title: str
     Abstract: str
     Year: int
     Best_oa_location: str
-    def __init__(self, ID: _Optional[str] = ..., Title: _Optional[str] = ..., Abstract: _Optional[str] = ..., Year: _Optional[int] = ..., Best_oa_location: _Optional[str] = ...) -> None: ...
+    State: str
+    def __init__(self, ID: _Optional[str] = ..., Title: _Optional[str] = ..., Abstract: _Optional[str] = ..., Year: _Optional[int] = ..., Best_oa_location: _Optional[str] = ..., State: _Optional[str] = ...) -> None: ...
 
 class PapersResponse(_message.Message):
     __slots__ = ("Papers",)

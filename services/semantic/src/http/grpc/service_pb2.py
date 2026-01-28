@@ -24,7 +24,7 @@ _sym_db = _symbol_database.Default()
 
 
 
-DESCRIPTOR = _descriptor_pool.Default().AddSerializedFile(b'\n\rservice.proto\x12\x08semantic\"\x1f\n\x0eInstitutionReq\x12\r\n\x05Query\x18\x01 \x01(\t\"?\n\x10InstitutionsResp\x12+\n\x0cInstitutions\x18\x01 \x03(\x0b\x32\x15.semantic.Institution\"e\n\x0bInstitution\x12\x16\n\x0eInstitution_id\x18\x01 \x01(\x03\x12\x0c\n\x04Name\x18\x02 \x01(\t\x12\x0f\n\x07\x43ountry\x18\x03 \x01(\t\x12\x0e\n\x06Ror_id\x18\x04 \x01(\t\x12\x0f\n\x07Grid_id\x18\x05 \x01(\t\"\x1a\n\tAuthorReq\x12\r\n\x05Query\x18\x01 \x01(\t\"0\n\x0b\x41uthorsResp\x12!\n\x07\x41uthors\x18\x01 \x03(\x0b\x32\x10.semantic.Author\"f\n\x06\x41uthor\x12\x12\n\nFirst_name\x18\x01 \x01(\t\x12\x11\n\tLast_name\x18\x02 \x01(\t\x12\x13\n\x0bMiddle_name\x18\x03 \x01(\t\x12\r\n\x05Orcid\x18\x04 \x01(\t\x12\x11\n\tAuthor_id\x18\x05 \x01(\x03\"\x1d\n\nHistoryReq\x12\x0f\n\x07\x43hat_id\x18\x01 \x01(\x03\":\n\x0bHistoryResp\x12+\n\x0c\x43hatMessages\x18\x01 \x03(\x0b\x32\x15.semantic.ChatMessage\"a\n\x0b\x43hatMessage\x12\x14\n\x0cSearch_query\x18\x01 \x01(\t\x12\x12\n\nCreated_at\x18\x02 \x01(\t\x12(\n\x06papers\x18\x03 \x01(\x0b\x32\x18.semantic.PapersResponse\"\x1f\n\x0cUserChatsReq\x12\x0f\n\x07User_id\x18\x01 \x01(\x03\"1\n\rDeleteChatReq\x12\x0f\n\x07\x43hat_id\x18\x01 \x01(\x03\x12\x0f\n\x07User_id\x18\x02 \x01(\x03\"K\n\x04\x43hat\x12\x0f\n\x07\x43hat_id\x18\x01 \x01(\x03\x12\x0f\n\x07User_id\x18\x02 \x01(\x03\x12\x12\n\nUpdated_at\x18\x03 \x01(\t\x12\r\n\x05Title\x18\x04 \x01(\t\"@\n\rUpdateChatReq\x12\x0f\n\x07\x43hat_id\x18\x01 \x01(\x03\x12\r\n\x05Title\x18\x02 \x01(\t\x12\x0f\n\x07User_id\x18\x03 \x01(\x03\"*\n\tChatsResp\x12\x1d\n\x05\x43hats\x18\x01 \x03(\x0b\x32\x0e.semantic.Chat\"(\n\x08\x43hatResp\x12\x1c\n\x04\x43hat\x18\x01 \x01(\x0b\x32\x0e.semantic.Chat\"4\n\rSearchRequest\x12\x12\n\nInput_data\x18\x01 \x01(\t\x12\x0f\n\x07\x43hat_id\x18\x02 \x01(\x03\"2\n\x0e\x41uthorPaperReq\x12\x11\n\tAuthor_ID\x18\x01 \x01(\x03\x12\r\n\x05State\x18\x02 \x01(\t\"d\n\rPaperResponse\x12\n\n\x02ID\x18\x01 \x01(\t\x12\r\n\x05Title\x18\x02 \x01(\t\x12\x10\n\x08\x41\x62stract\x18\x03 \x01(\t\x12\x0c\n\x04Year\x18\x04 \x01(\x03\x12\x18\n\x10\x42\x65st_oa_location\x18\x05 \x01(\t\"9\n\x0ePapersResponse\x12\'\n\x06Papers\x18\x01 \x03(\x0b\x32\x17.semantic.PaperResponse\"\xd6\x01\n\nAddRequest\x12\n\n\x02ID\x18\x01 \x01(\t\x12\r\n\x05Title\x18\x02 \x01(\t\x12\x10\n\x08\x41\x62stract\x18\x03 \x01(\t\x12\x0c\n\x04Year\x18\x04 \x01(\x03\x12\x18\n\x10\x42\x65st_oa_location\x18\x05 \x01(\t\x12\x34\n\x10Referenced_works\x18\x06 \x03(\x0b\x32\x1a.semantic.Referenced_works\x12.\n\rRelated_works\x18\x07 \x03(\x0b\x32\x17.semantic.Related_works\x12\r\n\x05State\x18\x08 \x01(\t\"\x1e\n\x10Referenced_works\x12\n\n\x02ID\x18\x01 \x01(\t\"\x1b\n\rRelated_works\x12\n\n\x02ID\x18\x01 \x01(\t\"\x1e\n\rErrorResponse\x12\r\n\x05\x45rror\x18\x01 \x01(\t2\xfe\x05\n\x0fSemanticService\x12G\n\x0fGetInstitutions\x12\x18.semantic.InstitutionReq\x1a\x1a.semantic.InstitutionsResp\x12@\n\x0e\x41\x64\x64Institution\x12\x15.semantic.Institution\x1a\x17.semantic.ErrorResponse\x12\x38\n\nGetAuthors\x12\x13.semantic.AuthorReq\x1a\x15.semantic.AuthorsResp\x12\x36\n\tAddAuthor\x12\x10.semantic.Author\x1a\x17.semantic.ErrorResponse\x12=\n\x0eGetChatHistory\x12\x14.semantic.HistoryReq\x1a\x15.semantic.HistoryResp\x12\x33\n\rCreateNewChat\x12\x0e.semantic.Chat\x1a\x12.semantic.ChatResp\x12\x39\n\nUpdateChat\x12\x17.semantic.UpdateChatReq\x1a\x12.semantic.ChatResp\x12>\n\nDeleteChat\x12\x17.semantic.DeleteChatReq\x1a\x17.semantic.ErrorResponse\x12;\n\x0cGetUserChats\x12\x16.semantic.UserChatsReq\x1a\x13.semantic.ChatsResp\x12\x45\n\x0fGetAuthorPapers\x12\x18.semantic.AuthorPaperReq\x1a\x18.semantic.PapersResponse\x12@\n\x0bSearchPaper\x12\x17.semantic.SearchRequest\x1a\x18.semantic.PapersResponse\x12\x39\n\x08\x41\x64\x64Paper\x12\x14.semantic.AddRequest\x1a\x17.semantic.ErrorResponseb\x06proto3')
+DESCRIPTOR = _descriptor_pool.Default().AddSerializedFile(b'\n\rservice.proto\x12\x08semantic\"\x1f\n\x0eInstitutionReq\x12\r\n\x05Query\x18\x01 \x01(\t\"?\n\x10InstitutionsResp\x12+\n\x0cInstitutions\x18\x01 \x03(\x0b\x32\x15.semantic.Institution\"e\n\x0bInstitution\x12\x16\n\x0eInstitution_id\x18\x01 \x01(\x03\x12\x0c\n\x04Name\x18\x02 \x01(\t\x12\x0f\n\x07\x43ountry\x18\x03 \x01(\t\x12\x0e\n\x06Ror_id\x18\x04 \x01(\t\x12\x0f\n\x07Grid_id\x18\x05 \x01(\t\"\x1a\n\tAuthorReq\x12\r\n\x05Query\x18\x01 \x01(\t\"0\n\x0b\x41uthorsResp\x12!\n\x07\x41uthors\x18\x01 \x03(\x0b\x32\x10.semantic.Author\"f\n\x06\x41uthor\x12\x12\n\nFirst_name\x18\x01 \x01(\t\x12\x11\n\tLast_name\x18\x02 \x01(\t\x12\x13\n\x0bMiddle_name\x18\x03 \x01(\t\x12\r\n\x05Orcid\x18\x04 \x01(\t\x12\x11\n\tAuthor_id\x18\x05 \x01(\x03\".\n\nHistoryReq\x12\x0f\n\x07\x43hat_id\x18\x01 \x01(\x03\x12\x0f\n\x07User_id\x18\x02 \x01(\x03\":\n\x0bHistoryResp\x12+\n\x0c\x43hatMessages\x18\x01 \x03(\x0b\x32\x15.semantic.ChatMessage\"a\n\x0b\x43hatMessage\x12\x14\n\x0cSearch_query\x18\x01 \x01(\t\x12\x12\n\nCreated_at\x18\x02 \x01(\t\x12(\n\x06papers\x18\x03 \x01(\x0b\x32\x18.semantic.PapersResponse\"\x1f\n\x0cUserChatsReq\x12\x0f\n\x07User_id\x18\x01 \x01(\x03\"1\n\rDeleteChatReq\x12\x0f\n\x07\x43hat_id\x18\x01 \x01(\x03\x12\x0f\n\x07User_id\x18\x02 \x01(\x03\"K\n\x04\x43hat\x12\x0f\n\x07\x43hat_id\x18\x01 \x01(\x03\x12\x0f\n\x07User_id\x18\x02 \x01(\x03\x12\x12\n\nUpdated_at\x18\x03 \x01(\t\x12\r\n\x05Title\x18\x04 \x01(\t\"@\n\rUpdateChatReq\x12\x0f\n\x07\x43hat_id\x18\x01 \x01(\x03\x12\r\n\x05Title\x18\x02 \x01(\t\x12\x0f\n\x07User_id\x18\x03 \x01(\x03\"*\n\tChatsResp\x12\x1d\n\x05\x43hats\x18\x01 \x03(\x0b\x32\x0e.semantic.Chat\"(\n\x08\x43hatResp\x12\x1c\n\x04\x43hat\x18\x01 \x01(\x0b\x32\x0e.semantic.Chat\"E\n\rSearchRequest\x12\x12\n\nInput_data\x18\x01 \x01(\t\x12\x0f\n\x07\x43hat_id\x18\x02 \x01(\x03\x12\x0f\n\x07User_id\x18\x03 \x01(\x03\"2\n\x0e\x41uthorPaperReq\x12\x11\n\tAuthor_ID\x18\x01 \x01(\x03\x12\r\n\x05State\x18\x02 \x01(\t\"s\n\rPaperResponse\x12\n\n\x02ID\x18\x01 \x01(\t\x12\r\n\x05Title\x18\x02 \x01(\t\x12\x10\n\x08\x41\x62stract\x18\x03 \x01(\t\x12\x0c\n\x04Year\x18\x04 \x01(\x03\x12\x18\n\x10\x42\x65st_oa_location\x18\x05 \x01(\t\x12\r\n\x05State\x18\x06 \x01(\t\"9\n\x0ePapersResponse\x12\'\n\x06Papers\x18\x01 \x03(\x0b\x32\x17.semantic.PaperResponse\"\xd6\x01\n\nAddRequest\x12\n\n\x02ID\x18\x01 \x01(\t\x12\r\n\x05Title\x18\x02 \x01(\t\x12\x10\n\x08\x41\x62stract\x18\x03 \x01(\t\x12\x0c\n\x04Year\x18\x04 \x01(\x03\x12\x18\n\x10\x42\x65st_oa_location\x18\x05 \x01(\t\x12\x34\n\x10Referenced_works\x18\x06 \x03(\x0b\x32\x1a.semantic.Referenced_works\x12.\n\rRelated_works\x18\x07 \x03(\x0b\x32\x17.semantic.Related_works\x12\r\n\x05State\x18\x08 \x01(\t\"\x1e\n\x10Referenced_works\x12\n\n\x02ID\x18\x01 \x01(\t\"\x1b\n\rRelated_works\x12\n\n\x02ID\x18\x01 \x01(\t\"\x1e\n\rErrorResponse\x12\r\n\x05\x45rror\x18\x01 \x01(\t2\xfb\x05\n\x0fSemanticService\x12G\n\x0fGetInstitutions\x12\x18.semantic.InstitutionReq\x1a\x1a.semantic.InstitutionsResp\x12@\n\x0e\x41\x64\x64Institution\x12\x15.semantic.Institution\x1a\x17.semantic.ErrorResponse\x12\x38\n\nGetAuthors\x12\x13.semantic.AuthorReq\x1a\x15.semantic.AuthorsResp\x12\x36\n\tAddAuthor\x12\x10.semantic.Author\x1a\x17.semantic.ErrorResponse\x12=\n\x0eGetChatHistory\x12\x14.semantic.HistoryReq\x1a\x15.semantic.HistoryResp\x12\x33\n\rCreateNewChat\x12\x0e.semantic.Chat\x1a\x12.semantic.ChatResp\x12\x39\n\nUpdateChat\x12\x17.semantic.UpdateChatReq\x1a\x12.semantic.ChatResp\x12>\n\nDeleteChat\x12\x17.semantic.DeleteChatReq\x1a\x17.semantic.ErrorResponse\x12;\n\x0cGetUserChats\x12\x16.semantic.UserChatsReq\x1a\x13.semantic.ChatsResp\x12\x45\n\x0fGetAuthorPapers\x12\x18.semantic.AuthorPaperReq\x1a\x18.semantic.PapersResponse\x12=\n\x0bSearchPaper\x12\x17.semantic.SearchRequest\x1a\x15.semantic.ChatMessage\x12\x39\n\x08\x41\x64\x64Paper\x12\x14.semantic.AddRequest\x1a\x17.semantic.PaperResponseb\x06proto3')
 
 _globals = globals()
 _builder.BuildMessageAndEnumDescriptors(DESCRIPTOR, _globals)
@@ -44,39 +44,39 @@ if not _descriptor._USE_C_DESCRIPTORS:
   _globals['_AUTHOR']._serialized_start=306
   _globals['_AUTHOR']._serialized_end=408
   _globals['_HISTORYREQ']._serialized_start=410
-  _globals['_HISTORYREQ']._serialized_end=439
-  _globals['_HISTORYRESP']._serialized_start=441
-  _globals['_HISTORYRESP']._serialized_end=499
-  _globals['_CHATMESSAGE']._serialized_start=501
-  _globals['_CHATMESSAGE']._serialized_end=598
-  _globals['_USERCHATSREQ']._serialized_start=600
-  _globals['_USERCHATSREQ']._serialized_end=631
-  _globals['_DELETECHATREQ']._serialized_start=633
-  _globals['_DELETECHATREQ']._serialized_end=682
-  _globals['_CHAT']._serialized_start=684
-  _globals['_CHAT']._serialized_end=759
-  _globals['_UPDATECHATREQ']._serialized_start=761
-  _globals['_UPDATECHATREQ']._serialized_end=825
-  _globals['_CHATSRESP']._serialized_start=827
-  _globals['_CHATSRESP']._serialized_end=869
-  _globals['_CHATRESP']._serialized_start=871
-  _globals['_CHATRESP']._serialized_end=911
-  _globals['_SEARCHREQUEST']._serialized_start=913
-  _globals['_SEARCHREQUEST']._serialized_end=965
-  _globals['_AUTHORPAPERREQ']._serialized_start=967
-  _globals['_AUTHORPAPERREQ']._serialized_end=1017
-  _globals['_PAPERRESPONSE']._serialized_start=1019
-  _globals['_PAPERRESPONSE']._serialized_end=1119
-  _globals['_PAPERSRESPONSE']._serialized_start=1121
-  _globals['_PAPERSRESPONSE']._serialized_end=1178
-  _globals['_ADDREQUEST']._serialized_start=1181
-  _globals['_ADDREQUEST']._serialized_end=1395
-  _globals['_REFERENCED_WORKS']._serialized_start=1397
-  _globals['_REFERENCED_WORKS']._serialized_end=1427
-  _globals['_RELATED_WORKS']._serialized_start=1429
-  _globals['_RELATED_WORKS']._serialized_end=1456
-  _globals['_ERRORRESPONSE']._serialized_start=1458
-  _globals['_ERRORRESPONSE']._serialized_end=1488
-  _globals['_SEMANTICSERVICE']._serialized_start=1491
-  _globals['_SEMANTICSERVICE']._serialized_end=2257
+  _globals['_HISTORYREQ']._serialized_end=456
+  _globals['_HISTORYRESP']._serialized_start=458
+  _globals['_HISTORYRESP']._serialized_end=516
+  _globals['_CHATMESSAGE']._serialized_start=518
+  _globals['_CHATMESSAGE']._serialized_end=615
+  _globals['_USERCHATSREQ']._serialized_start=617
+  _globals['_USERCHATSREQ']._serialized_end=648
+  _globals['_DELETECHATREQ']._serialized_start=650
+  _globals['_DELETECHATREQ']._serialized_end=699
+  _globals['_CHAT']._serialized_start=701
+  _globals['_CHAT']._serialized_end=776
+  _globals['_UPDATECHATREQ']._serialized_start=778
+  _globals['_UPDATECHATREQ']._serialized_end=842
+  _globals['_CHATSRESP']._serialized_start=844
+  _globals['_CHATSRESP']._serialized_end=886
+  _globals['_CHATRESP']._serialized_start=888
+  _globals['_CHATRESP']._serialized_end=928
+  _globals['_SEARCHREQUEST']._serialized_start=930
+  _globals['_SEARCHREQUEST']._serialized_end=999
+  _globals['_AUTHORPAPERREQ']._serialized_start=1001
+  _globals['_AUTHORPAPERREQ']._serialized_end=1051
+  _globals['_PAPERRESPONSE']._serialized_start=1053
+  _globals['_PAPERRESPONSE']._serialized_end=1168
+  _globals['_PAPERSRESPONSE']._serialized_start=1170
+  _globals['_PAPERSRESPONSE']._serialized_end=1227
+  _globals['_ADDREQUEST']._serialized_start=1230
+  _globals['_ADDREQUEST']._serialized_end=1444
+  _globals['_REFERENCED_WORKS']._serialized_start=1446
+  _globals['_REFERENCED_WORKS']._serialized_end=1476
+  _globals['_RELATED_WORKS']._serialized_start=1478
+  _globals['_RELATED_WORKS']._serialized_end=1505
+  _globals['_ERRORRESPONSE']._serialized_start=1507
+  _globals['_ERRORRESPONSE']._serialized_end=1537
+  _globals['_SEMANTICSERVICE']._serialized_start=1540
+  _globals['_SEMANTICSERVICE']._serialized_end=2303
 # @@protoc_insertion_point(module_scope)
