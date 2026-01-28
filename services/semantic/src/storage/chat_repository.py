@@ -13,6 +13,19 @@ class ChatRepository:
     def __init__(self, *, dsn: str | None = None) -> None:
         self.dsn = dsn or DATABASE_SETTINGS.psycopg_dsn()
 
+    def is_chat_owner(self, chat_id:int,user_id:int)->bool:
+        with psycopg.connect(self.dsn, row_factory=dict_row) as conn:
+            query = """
+                SELECT FROM chat
+                WHERE chat_id = %s AND user_id = %s
+            """
+            with conn.cursor() as cur:
+                cur.execute(query, (chat_id, user_id))
+                if cur.rowcount == 0:
+                    return False
+            conn.commit()
+        return True
+
     def create_chat(self, user_id: int, title: Optional[str] = None) -> ChatModel:
         title_value = title.strip() if isinstance(title, str) and title.strip() else "New chat"
         with psycopg.connect(self.dsn, row_factory=dict_row) as conn:

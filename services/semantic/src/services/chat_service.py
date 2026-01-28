@@ -32,3 +32,6 @@ class ChatService:
 
     def record_chat_message(self, chat_id: int, search_query: str, papers: List[PaperModel]) -> ChatMessage:
         return self.repository.create_chat_message(chat_id, search_query, papers)
+
+    def is_chat_owner(self, chat_id:int,user_id:int)->bool:
+        return self.repository.is_chat_owner(chat_id,user_id)
