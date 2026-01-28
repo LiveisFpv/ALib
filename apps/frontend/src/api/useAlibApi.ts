@@ -1,7 +1,8 @@
 import { api } from '@/api/base/useAlibApi'
 import type {
   AddPaperRequest,
-  PapersResponse,
+  PaperResponse,
+  ChatHistoryMessage,
   ChatHistoryCreateRequest,
   ChatHistoryResponse,
   ChatResponse,
@@ -15,7 +16,7 @@ export const AlibApi = {
     const payload = <ChatHistoryCreateRequest>{
       text: search_text,
     }
-    return api.post<PapersResponse>(`/chats/${id}/history`, payload).then((r) => r.data)
+    return api.post<ChatHistoryMessage>(`/chats/${id}/history`, payload).then((r) => r.data)
   },
   get_chat_history(chat_id: number) {
     const id = `${encodeURIComponent(chat_id)}`
@@ -42,6 +43,6 @@ export const AlibApi = {
     return api.get<ChatsResponse>(`/chats/`).then((r) => r.data)
   },
   addPaper(payload: AddPaperRequest) {
-    return api.post<void>('/ai/paper/add', payload).then((r) => r.data)
+    return api.post<PaperResponse>('/ai/paper/add', payload).then((r) => r.data)
   },
 }

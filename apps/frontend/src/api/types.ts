@@ -124,6 +124,7 @@ export interface PaperResponse {
   id?: string
   title?: string
   year?: number
+  state?: string
 }
 
 export interface AddPaperRequest {

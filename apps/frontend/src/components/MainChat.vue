@@ -136,7 +136,7 @@ async function runSearch(text?: string) {
     const mapped = (response.papers ?? [])
       .map((paper, index) => toPaperCard(paper, index))
       .filter((item): item is PaperCard => !!item)
-    const message = chatStore.addMessage(chatId, searchText, mapped)
+    const message = chatStore.addMessage(chatId, response.search_query, mapped, response.created_at)
     if (!message) {
       throw new Error(t('chat.error.failed'))
     }
