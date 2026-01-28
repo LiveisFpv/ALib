@@ -25,7 +25,7 @@ const docTemplate = `{
                     "application/json"
                 ],
                 "tags": [
-                    "ai"
+                    "paper"
                 ],
                 "summary": "Add paper",
                 "parameters": [
@@ -43,10 +43,7 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "type": "object",
-                            "additionalProperties": {
-                                "type": "string"
-                            }
+                            "$ref": "#/definitions/presenters.Paper"
                         }
                     },
                     "400": {
@@ -61,8 +58,20 @@ const docTemplate = `{
                             "$ref": "#/definitions/presenters.ErrorResponse"
                         }
                     },
+                    "403": {
+                        "description": "Forbidden",
+                        "schema": {
+                            "$ref": "#/definitions/presenters.ErrorResponse"
+                        }
+                    },
                     "500": {
                         "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/presenters.ErrorResponse"
+                        }
+                    },
+                    "502": {
+                        "description": "Bad Gateway",
                         "schema": {
                             "$ref": "#/definitions/presenters.ErrorResponse"
                         }
@@ -83,14 +92,6 @@ const docTemplate = `{
                     "chat"
                 ],
                 "summary": "Get user chats",
-                "parameters": [
-                    {
-                        "type": "integer",
-                        "description": "User ID",
-                        "name": "user_id",
-                        "in": "query"
-                    }
-                ],
                 "responses": {
                     "200": {
                         "description": "OK",
@@ -118,6 +119,12 @@ const docTemplate = `{
                     },
                     "500": {
                         "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/presenters.ErrorResponse"
+                        }
+                    },
+                    "502": {
+                        "description": "Bad Gateway",
                         "schema": {
                             "$ref": "#/definitions/presenters.ErrorResponse"
                         }
@@ -174,6 +181,12 @@ const docTemplate = `{
                     },
                     "500": {
                         "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/presenters.ErrorResponse"
+                        }
+                    },
+                    "502": {
+                        "description": "Bad Gateway",
                         "schema": {
                             "$ref": "#/definitions/presenters.ErrorResponse"
                         }
@@ -242,6 +255,12 @@ const docTemplate = `{
                         "schema": {
                             "$ref": "#/definitions/presenters.ErrorResponse"
                         }
+                    },
+                    "502": {
+                        "description": "Bad Gateway",
+                        "schema": {
+                            "$ref": "#/definitions/presenters.ErrorResponse"
+                        }
                     }
                 }
             },
@@ -282,8 +301,20 @@ const docTemplate = `{
                             "$ref": "#/definitions/presenters.ErrorResponse"
                         }
                     },
+                    "403": {
+                        "description": "Forbidden",
+                        "schema": {
+                            "$ref": "#/definitions/presenters.ErrorResponse"
+                        }
+                    },
                     "500": {
                         "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/presenters.ErrorResponse"
+                        }
+                    },
+                    "502": {
+                        "description": "Bad Gateway",
                         "schema": {
                             "$ref": "#/definitions/presenters.ErrorResponse"
                         }
@@ -311,12 +342,6 @@ const docTemplate = `{
                         "name": "chat_id",
                         "in": "path",
                         "required": true
-                    },
-                    {
-                        "type": "integer",
-                        "description": "User ID",
-                        "name": "user_id",
-                        "in": "query"
                     }
                 ],
                 "responses": {
@@ -349,6 +374,12 @@ const docTemplate = `{
                         "schema": {
                             "$ref": "#/definitions/presenters.ErrorResponse"
                         }
+                    },
+                    "502": {
+                        "description": "Bad Gateway",
+                        "schema": {
+                            "$ref": "#/definitions/presenters.ErrorResponse"
+                        }
                     }
                 }
             },
@@ -373,12 +404,6 @@ const docTemplate = `{
                         "required": true
                     },
                     {
-                        "type": "integer",
-                        "description": "User ID",
-                        "name": "user_id",
-                        "in": "query"
-                    },
-                    {
                         "description": "Search query",
                         "name": "data",
                         "in": "body",
@@ -392,7 +417,7 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/presenters.SearchPaperResponse"
+                            "$ref": "#/definitions/presenters.ChatHistoryMessage"
                         }
                     },
                     "400": {
@@ -415,6 +440,12 @@ const docTemplate = `{
                     },
                     "500": {
                         "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/presenters.ErrorResponse"
+                        }
+                    },
+                    "502": {
+                        "description": "Bad Gateway",
                         "schema": {
                             "$ref": "#/definitions/presenters.ErrorResponse"
                         }
@@ -554,6 +585,9 @@ const docTemplate = `{
                 "id": {
                     "type": "string"
                 },
+                "state": {
+                    "type": "string"
+                },
                 "title": {
                     "type": "string"
                 },
@@ -575,17 +609,6 @@ const docTemplate = `{
             "properties": {
                 "id": {
                     "type": "string"
-                }
-            }
-        },
-        "presenters.SearchPaperResponse": {
-            "type": "object",
-            "properties": {
-                "papers": {
-                    "type": "array",
-                    "items": {
-                        "$ref": "#/definitions/presenters.Paper"
-                    }
                 }
             }
         }

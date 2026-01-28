@@ -19,7 +19,7 @@
                     "application/json"
                 ],
                 "tags": [
-                    "ai"
+                    "paper"
                 ],
                 "summary": "Add paper",
                 "parameters": [
@@ -37,10 +37,7 @@
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "type": "object",
-                            "additionalProperties": {
-                                "type": "string"
-                            }
+                            "$ref": "#/definitions/presenters.Paper"
                         }
                     },
                     "400": {
@@ -55,8 +52,20 @@
                             "$ref": "#/definitions/presenters.ErrorResponse"
                         }
                     },
+                    "403": {
+                        "description": "Forbidden",
+                        "schema": {
+                            "$ref": "#/definitions/presenters.ErrorResponse"
+                        }
+                    },
                     "500": {
                         "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/presenters.ErrorResponse"
+                        }
+                    },
+                    "502": {
+                        "description": "Bad Gateway",
                         "schema": {
                             "$ref": "#/definitions/presenters.ErrorResponse"
                         }
@@ -77,14 +86,6 @@
                     "chat"
                 ],
                 "summary": "Get user chats",
-                "parameters": [
-                    {
-                        "type": "integer",
-                        "description": "User ID",
-                        "name": "user_id",
-                        "in": "query"
-                    }
-                ],
                 "responses": {
                     "200": {
                         "description": "OK",
@@ -112,6 +113,12 @@
                     },
                     "500": {
                         "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/presenters.ErrorResponse"
+                        }
+                    },
+                    "502": {
+                        "description": "Bad Gateway",
                         "schema": {
                             "$ref": "#/definitions/presenters.ErrorResponse"
                         }
@@ -168,6 +175,12 @@
                     },
                     "500": {
                         "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/presenters.ErrorResponse"
+                        }
+                    },
+                    "502": {
+                        "description": "Bad Gateway",
                         "schema": {
                             "$ref": "#/definitions/presenters.ErrorResponse"
                         }
@@ -236,6 +249,12 @@
                         "schema": {
                             "$ref": "#/definitions/presenters.ErrorResponse"
                         }
+                    },
+                    "502": {
+                        "description": "Bad Gateway",
+                        "schema": {
+                            "$ref": "#/definitions/presenters.ErrorResponse"
+                        }
                     }
                 }
             },
@@ -276,8 +295,20 @@
                             "$ref": "#/definitions/presenters.ErrorResponse"
                         }
                     },
+                    "403": {
+                        "description": "Forbidden",
+                        "schema": {
+                            "$ref": "#/definitions/presenters.ErrorResponse"
+                        }
+                    },
                     "500": {
                         "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/presenters.ErrorResponse"
+                        }
+                    },
+                    "502": {
+                        "description": "Bad Gateway",
                         "schema": {
                             "$ref": "#/definitions/presenters.ErrorResponse"
                         }
@@ -305,12 +336,6 @@
                         "name": "chat_id",
                         "in": "path",
                         "required": true
-                    },
-                    {
-                        "type": "integer",
-                        "description": "User ID",
-                        "name": "user_id",
-                        "in": "query"
                     }
                 ],
                 "responses": {
@@ -343,6 +368,12 @@
                         "schema": {
                             "$ref": "#/definitions/presenters.ErrorResponse"
                         }
+                    },
+                    "502": {
+                        "description": "Bad Gateway",
+                        "schema": {
+                            "$ref": "#/definitions/presenters.ErrorResponse"
+                        }
                     }
                 }
             },
@@ -367,12 +398,6 @@
                         "required": true
                     },
                     {
-                        "type": "integer",
-                        "description": "User ID",
-                        "name": "user_id",
-                        "in": "query"
-                    },
-                    {
                         "description": "Search query",
                         "name": "data",
                         "in": "body",
@@ -386,7 +411,7 @@
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/presenters.SearchPaperResponse"
+                            "$ref": "#/definitions/presenters.ChatHistoryMessage"
                         }
                     },
                     "400": {
@@ -409,6 +434,12 @@
                     },
                     "500": {
                         "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/presenters.ErrorResponse"
+                        }
+                    },
+                    "502": {
+                        "description": "Bad Gateway",
                         "schema": {
                             "$ref": "#/definitions/presenters.ErrorResponse"
                         }
@@ -548,6 +579,9 @@
                 "id": {
                     "type": "string"
                 },
+                "state": {
+                    "type": "string"
+                },
                 "title": {
                     "type": "string"
                 },
@@ -569,17 +603,6 @@
             "properties": {
                 "id": {
                     "type": "string"
-                }
-            }
-        },
-        "presenters.SearchPaperResponse": {
-            "type": "object",
-            "properties": {
-                "papers": {
-                    "type": "array",
-                    "items": {
-                        "$ref": "#/definitions/presenters.Paper"
-                    }
                 }
             }
         }

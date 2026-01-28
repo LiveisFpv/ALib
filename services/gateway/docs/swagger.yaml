@@ -84,6 +84,8 @@ definitions:
         type: string
       id:
         type: string
+      state:
+        type: string
       title:
         type: string
       year:
@@ -98,13 +100,6 @@ definitions:
     properties:
       id:
         type: string
-    type: object
-  presenters.SearchPaperResponse:
-    properties:
-      papers:
-        items:
-          $ref: '#/definitions/presenters.Paper'
-        type: array
     type: object
 host: localhost:8080
 info:
@@ -131,9 +126,7 @@ paths:
         "200":
           description: OK
           schema:
-            additionalProperties:
-              type: string
-            type: object
+            $ref: '#/definitions/presenters.Paper'
         "400":
           description: Bad Request
           schema:
@@ -142,23 +135,26 @@ paths:
           description: Unauthorized
           schema:
             $ref: '#/definitions/presenters.ErrorResponse'
+        "403":
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/presenters.ErrorResponse'
         "500":
           description: Internal Server Error
           schema:
             $ref: '#/definitions/presenters.ErrorResponse'
+        "502":
+          description: Bad Gateway
+          schema:
+            $ref: '#/definitions/presenters.ErrorResponse'
       summary: Add paper
       tags:
-      - ai
+      - paper
   /chats:
     get:
       consumes:
       - application/json
       description: Get all chats for a user
-      parameters:
-      - description: User ID
-        in: query
-        name: user_id
-        type: integer
       produces:
       - application/json
       responses:
@@ -180,6 +176,10 @@ paths:
             $ref: '#/definitions/presenters.ErrorResponse'
         "500":
           description: Internal Server Error
+          schema:
+            $ref: '#/definitions/presenters.ErrorResponse'
+        "502":
+          description: Bad Gateway
           schema:
             $ref: '#/definitions/presenters.ErrorResponse'
       summary: Get user chats
@@ -219,6 +219,10 @@ paths:
           description: Internal Server Error
           schema:
             $ref: '#/definitions/presenters.ErrorResponse'
+        "502":
+          description: Bad Gateway
+          schema:
+            $ref: '#/definitions/presenters.ErrorResponse'
       summary: Create chat
       tags:
       - chat
@@ -246,8 +250,16 @@ paths:
           description: Unauthorized
           schema:
             $ref: '#/definitions/presenters.ErrorResponse'
+        "403":
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/presenters.ErrorResponse'
         "500":
           description: Internal Server Error
+          schema:
+            $ref: '#/definitions/presenters.ErrorResponse'
+        "502":
+          description: Bad Gateway
           schema:
             $ref: '#/definitions/presenters.ErrorResponse'
       summary: Delete chat
@@ -292,6 +304,10 @@ paths:
           description: Internal Server Error
           schema:
             $ref: '#/definitions/presenters.ErrorResponse'
+        "502":
+          description: Bad Gateway
+          schema:
+            $ref: '#/definitions/presenters.ErrorResponse'
       summary: Update chat title
       tags:
       - chat
@@ -305,10 +321,6 @@ paths:
         in: path
         name: chat_id
         required: true
-        type: integer
-      - description: User ID
-        in: query
-        name: user_id
         type: integer
       produces:
       - application/json
@@ -333,6 +345,10 @@ paths:
           description: Internal Server Error
           schema:
             $ref: '#/definitions/presenters.ErrorResponse'
+        "502":
+          description: Bad Gateway
+          schema:
+            $ref: '#/definitions/presenters.ErrorResponse'
       summary: Get chat history
       tags:
       - chat
@@ -346,10 +362,6 @@ paths:
         name: chat_id
         required: true
         type: integer
-      - description: User ID
-        in: query
-        name: user_id
-        type: integer
       - description: Search query
         in: body
         name: data
@@ -362,7 +374,7 @@ paths:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/presenters.SearchPaperResponse'
+            $ref: '#/definitions/presenters.ChatHistoryMessage'
         "400":
           description: Bad Request
           schema:
@@ -377,6 +389,10 @@ paths:
             $ref: '#/definitions/presenters.ErrorResponse'
         "500":
           description: Internal Server Error
+          schema:
+            $ref: '#/definitions/presenters.ErrorResponse'
+        "502":
+          description: Bad Gateway
           schema:
             $ref: '#/definitions/presenters.ErrorResponse'
       summary: Add chat history entry

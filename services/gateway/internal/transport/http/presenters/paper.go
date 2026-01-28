@@ -10,6 +10,15 @@ type AddPaperRequest struct {
 	RelatedPaper     []RelatedPaper    `json:"related_paper"`
 }
 
+type Paper struct {
+	Id               string `json:"id"`
+	Title            string `json:"title"`
+	Abstract         string `json:"abstract"`
+	Year             int    `json:"year"`
+	Best_oa_location string `json:"best_oa_location"`
+	State            string `json:"state"`
+}
+
 type ReferencedPaper struct {
 	Id string `json:"id"`
 }
