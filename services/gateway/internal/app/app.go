@@ -3,7 +3,6 @@ package app
 import (
 	pb "VKR_gateway_service/gen/go"
 	"VKR_gateway_service/internal/config"
-	"VKR_gateway_service/internal/repository"
 	"VKR_gateway_service/internal/service"
 
 	"github.com/sirupsen/logrus"
@@ -20,7 +19,6 @@ type App struct {
 
 func NewApp(
 	cfg *config.Config,
-	UserRepository repository.UserRepository,
 	Logger *logrus.Logger,
 	AI pb.SemanticServiceClient,
 ) *App {
