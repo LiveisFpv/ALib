@@ -42,7 +42,7 @@ func CreateChat(ctx *gin.Context, a *app.App) {
 	chat, err := a.ChatService.CreateChat(ctx, int(userID), in.Title)
 
 	if err != nil {
-		ctx.JSON(http.StatusBadGateway, presenters.Error(err))
+		ctx.JSON(mapGRPCToHTTP(err), presenters.Error(err))
 		return
 	}
 	if chat == nil {
@@ -75,7 +75,7 @@ func GetUserChats(ctx *gin.Context, a *app.App) {
 	chats, err := a.ChatService.GetUserChats(ctx, int(userID))
 
 	if err != nil {
-		ctx.JSON(http.StatusBadGateway, presenters.Error(err))
+		ctx.JSON(mapGRPCToHTTP(err), presenters.Error(err))
 		return
 	}
 
@@ -114,7 +114,7 @@ func GetChatHistory(ctx *gin.Context, a *app.App) {
 	ChatMessages, err := a.ChatService.GetChatHistory(ctx, int(chatID), int(userID))
 
 	if err != nil {
-		ctx.JSON(http.StatusBadGateway, presenters.Error(err))
+		ctx.JSON(mapGRPCToHTTP(err), presenters.Error(err))
 		return
 	}
 
@@ -162,7 +162,7 @@ func CreateChatHistory(ctx *gin.Context, a *app.App) {
 	}
 	ChatMessage, err := a.ChatService.Search(ctx, in.Text, int(chatID), int(userID))
 	if err != nil {
-		ctx.JSON(http.StatusBadGateway, presenters.Error(err))
+		ctx.JSON(mapGRPCToHTTP(err), presenters.Error(err))
 		return
 	}
 	out := presenters.ChatHistoryMessage{
@@ -210,7 +210,7 @@ func UpdateChat(ctx *gin.Context, a *app.App) {
 	}
 	chat, err = a.ChatService.UpdateChat(ctx, chat)
 	if err != nil {
-		ctx.JSON(http.StatusBadGateway, presenters.Error(err))
+		ctx.JSON(mapGRPCToHTTP(err), presenters.Error(err))
 		return
 	}
 	if chat == nil {
@@ -247,7 +247,7 @@ func DeleteChat(ctx *gin.Context, a *app.App) {
 	}
 	err = a.ChatService.DeleteChat(ctx, int(chatID), int(userID))
 	if err != nil {
-		ctx.JSON(http.StatusBadGateway, presenters.Error(err))
+		ctx.JSON(mapGRPCToHTTP(err), presenters.Error(err))
 		return
 	}
 	ctx.Status(http.StatusOK)

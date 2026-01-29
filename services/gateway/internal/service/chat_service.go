@@ -9,7 +9,6 @@ import (
 	"fmt"
 
 	"github.com/sirupsen/logrus"
-	"google.golang.org/grpc/status"
 )
 
 var (
@@ -47,13 +46,10 @@ func (c *chatService) CreateChat(ctx context.Context, user_id int, title string)
 		UserId: int64(user_id),
 		Title:  title,
 	}
-	// rctx, cancel := requestContext
 	resp, err := c.SemanticClient.CreateNewChat(ctx, req)
 	if err != nil {
 		c.logger.WithError(err).WithField("user_id", user_id).Error("AI CreateNewChat RPC failed")
-		if _, ok := status.FromError(err); ok {
-			return nil, ErrCreateChatRPC
-		}
+		return nil, err
 	}
 
 	chat := resp.GetChat()
@@ -68,9 +64,7 @@ func (c *chatService) DeleteChat(ctx context.Context, chat_id int, user_id int) 
 			"chat_id": chat_id,
 			"user_id": user_id,
 		}).Error("AI Update chat RPC failed")
-		if _, ok := status.FromError(err); ok {
-			return ErrDeleteChatRPC
-		}
+		return err
 	}
 
 	if resp.Error != "" {
@@ -85,9 +79,7 @@ func (c *chatService) GetChatHistory(ctx context.Context, chat_id int, user_id i
 	resp, err := c.SemanticClient.GetChatHistory(ctx, req)
 	if err != nil {
 		c.logger.WithError(err).WithField("chat_id", chat_id).Error("AI GetChatHistory RPC failed")
-		if _, ok := status.FromError(err); ok {
-			return nil, ErrGetChatMessagesRPC
-		}
+		return nil, err
 	}
 
 	messages := make([]*domain.ChatHistoryMessage, 0, len(resp.GetChatMessages()))
@@ -106,9 +98,7 @@ func (c *chatService) GetUserChats(ctx context.Context, user_id int) ([]*domain.
 	resp, err := c.SemanticClient.GetUserChats(ctx, req)
 	if err != nil {
 		c.logger.WithError(err).WithField("user_id", user_id).Error("AI GetUserChats RPC failed")
-		if _, ok := status.FromError(err); ok {
-			return nil, ErrGetUserChatsRPC
-		}
+		return nil, err
 	}
 
 	chats := resp.GetChats()
@@ -133,9 +123,7 @@ func (c *chatService) Search(ctx context.Context, input string, chat_id int, use
 			"chat_id": chat_id,
 			"user_id": user_id,
 		}).Error("AI Update chat RPC failed")
-		if _, ok := status.FromError(err); ok {
-			return nil, ErrSearchPaperRPC
-		}
+		return nil, err
 	}
 
 	return &domain.ChatHistoryMessage{
@@ -157,9 +145,7 @@ func (c *chatService) UpdateChat(ctx context.Context, chat *domain.Chat) (*domai
 			"chat_id": chat.ChatId,
 			"user_id": chat.UserId,
 		}).Error("Update Chat RPC failed")
-		if _, ok := status.FromError(err); ok {
-			return nil, ErrUpdateChatRPC
-		}
+		return nil, err
 	}
 	return mapChat(resp.GetChat()), nil
 }

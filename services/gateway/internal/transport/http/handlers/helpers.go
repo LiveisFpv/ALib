@@ -8,7 +8,28 @@ import (
 	"strconv"
 
 	"github.com/gin-gonic/gin"
+	"google.golang.org/grpc/codes"
+	"google.golang.org/grpc/status"
 )
+
+func mapGRPCToHTTP(err error) int {
+	s, _ := status.FromError(err)
+	c := s.Code()
+	switch c {
+	case codes.InvalidArgument:
+		return http.StatusBadRequest
+	case codes.NotFound:
+		return http.StatusNotFound
+	case codes.DeadlineExceeded:
+		return http.StatusGatewayTimeout
+	case codes.Unavailable:
+		return http.StatusBadGateway
+	case codes.PermissionDenied, codes.Unauthenticated:
+		return http.StatusForbidden
+	default:
+		return http.StatusBadGateway
+	}
+}
 
 func parsePathInt64(ctx *gin.Context, name string) (int64, error) {
 	raw := ctx.Param(name)

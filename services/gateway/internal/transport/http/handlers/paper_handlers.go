@@ -50,7 +50,7 @@ func PaperAdd(ctx *gin.Context, a *app.App) {
 	}
 	paper, err := a.PaperService.AddPaper(ctx, paper, reference, relate)
 	if err != nil {
-		ctx.JSON(http.StatusBadGateway, presenters.Error(err))
+		ctx.JSON(mapGRPCToHTTP(err), presenters.Error(err))
 		return
 	}
 

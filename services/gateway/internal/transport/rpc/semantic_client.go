@@ -26,6 +26,12 @@ func NewSemanticService(ctx context.Context, addr string, timeout time.Duration,
 	}
 
 	base := []grpc.DialOption{grpc.WithTransportCredentials(insecure.NewCredentials())}
+	if timeout > 0 {
+		base = append(base,
+			grpc.WithChainUnaryInterceptor(UnaryTimeoutInterceptor(timeout)),
+			grpc.WithChainStreamInterceptor(StreamTimeoutInterceptor(timeout)),
+		)
+	}
 	if len(opts) > 0 {
 		base = append(base, opts...)
 	}

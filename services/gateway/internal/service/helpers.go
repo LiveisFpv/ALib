@@ -5,31 +5,6 @@ import (
 	"VKR_gateway_service/internal/domain"
 )
 
-// func requestContext(ctx *gin.Context, a *app.App) (context.Context, context.CancelFunc) {
-// 	rctx := ctx.Request.Context()
-// 	if a != nil && a.Config != nil && a.Config.GRPCTimeout > 0 {
-// 		return context.WithTimeout(rctx, a.Config.GRPCTimeout)
-// 	}
-// 	return rctx, func() {}
-// }
-
-// func mapGRPCToHTTP(c codes.Code) int {
-// 	switch c {
-// 	case codes.InvalidArgument:
-// 		return http.StatusBadRequest
-// 	case codes.NotFound:
-// 		return http.StatusNotFound
-// 	case codes.DeadlineExceeded:
-// 		return http.StatusGatewayTimeout
-// 	case codes.Unavailable:
-// 		return http.StatusBadGateway
-// 	case codes.PermissionDenied, codes.Unauthenticated:
-// 		return http.StatusForbidden
-// 	default:
-// 		return http.StatusBadGateway
-// 	}
-// }
-
 func mapChat(chat *pb.Chat) *domain.Chat {
 	if chat == nil {
 		return &domain.Chat{}
