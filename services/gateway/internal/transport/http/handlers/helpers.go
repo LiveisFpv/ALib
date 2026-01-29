@@ -1,10 +1,8 @@
 package handlers
 
 import (
-	pb "VKR_gateway_service/gen/go"
-	"VKR_gateway_service/internal/app"
+	"VKR_gateway_service/internal/domain"
 	"VKR_gateway_service/internal/transport/http/presenters"
-	"context"
 	"fmt"
 	"net/http"
 	"strconv"
@@ -14,7 +12,9 @@ import (
 	"google.golang.org/grpc/status"
 )
 
-func mapGRPCToHTTP(c codes.Code) int {
+func mapGRPCToHTTP(err error) int {
+	s, _ := status.FromError(err)
+	c := s.Code()
 	switch c {
 	case codes.InvalidArgument:
 		return http.StatusBadRequest
@@ -25,32 +25,16 @@ func mapGRPCToHTTP(c codes.Code) int {
 	case codes.Unavailable:
 		return http.StatusBadGateway
 	case codes.PermissionDenied, codes.Unauthenticated:
-		return http.StatusUnauthorized
+		return http.StatusForbidden
 	default:
 		return http.StatusBadGateway
 	}
-}
-
-func requestContext(ctx *gin.Context, a *app.App) (context.Context, context.CancelFunc) {
-	rctx := ctx.Request.Context()
-	if a != nil && a.Config != nil && a.Config.GRPCTimeout > 0 {
-		return context.WithTimeout(rctx, a.Config.GRPCTimeout)
-	}
-	return rctx, func() {}
 }
 
 func parsePathInt64(ctx *gin.Context, name string) (int64, error) {
 	raw := ctx.Param(name)
 	if raw == "" {
 		return 0, fmt.Errorf("%s path param is required", name)
-	}
-	return parsePositiveInt64(raw, name)
-}
-
-func parseOptionalQueryInt64(ctx *gin.Context, name string) (int64, error) {
-	raw := ctx.Query(name)
-	if raw == "" {
-		return 0, nil
 	}
 	return parsePositiveInt64(raw, name)
 }
@@ -63,6 +47,7 @@ func parsePositiveInt64(raw, field string) (int64, error) {
 	return val, nil
 }
 
+// function that search userID in context and compare it with given ID
 func resolveUserID(ctx *gin.Context, userID int64) (int64, int, error) {
 	authID, ok := authUserID(ctx)
 	if userID > 0 {
@@ -77,6 +62,7 @@ func resolveUserID(ctx *gin.Context, userID int64) (int64, int, error) {
 	return 0, http.StatusUnauthorized, fmt.Errorf("user_id is required")
 }
 
+// function that try to find userID in context and parse it
 func authUserID(ctx *gin.Context) (int64, bool) {
 	val, ok := ctx.Get("user_id")
 	if !ok {
@@ -100,52 +86,27 @@ func authUserID(ctx *gin.Context) (int64, bool) {
 	}
 }
 
-func authorizeChatAccess(ctx *gin.Context, a *app.App, userID, chatID int64) bool {
-	req := &pb.UserChatsReq{UserId: userID}
-	rctx, cancel := requestContext(ctx, a)
-	defer cancel()
-	resp, err := a.AI.GetUserChats(rctx, req)
-	if err != nil {
-		if a.Logger != nil {
-			a.Logger.WithError(err).WithField("user_id", userID).Error("AI GetUserChats RPC failed")
-		}
-		if s, ok := status.FromError(err); ok {
-			ctx.JSON(mapGRPCToHTTP(s.Code()), presenters.Error(fmt.Errorf(s.Message())))
-			return false
-		}
-		ctx.JSON(http.StatusBadGateway, presenters.Error(err))
-		return false
-	}
-	for _, chat := range resp.GetChats() {
-		if chat.GetChatId() == chatID {
-			return true
-		}
-	}
-	ctx.JSON(http.StatusForbidden, presenters.Error(fmt.Errorf("chat access denied")))
-	return false
-}
-
-func mapChat(chat *pb.Chat) presenters.ChatResponse {
+func mapChat(chat *domain.Chat) presenters.ChatResponse {
 	if chat == nil {
 		return presenters.ChatResponse{}
 	}
 	return presenters.ChatResponse{
-		ChatId:    chat.GetChatId(),
-		UserId:    chat.GetUserId(),
-		UpdatedAt: chat.GetUpdatedAt(),
-		Title:     chat.GetTitle(),
+		ChatId:    chat.ChatId,
+		UserId:    chat.UserId,
+		UpdatedAt: chat.UpdatedAt,
+		Title:     chat.Title,
 	}
 }
 
-func mapPapers(papers []*pb.PaperResponse) []presenters.Paper {
+func mapPapers(papers []*domain.Paper) []presenters.Paper {
 	out := make([]presenters.Paper, 0, len(papers))
 	for _, p := range papers {
 		out = append(out, presenters.Paper{
-			Id:               p.GetID(),
-			Title:            p.GetTitle(),
-			Abstract:         p.GetAbstract(),
-			Year:             int(p.GetYear()),
-			Best_oa_location: p.GetBestOaLocation(),
+			Id:               p.Id,
+			Title:            p.Title,
+			Abstract:         p.Abstract,
+			Year:             p.Year,
+			Best_oa_location: p.Best_oa_location,
 		})
 	}
 	return out

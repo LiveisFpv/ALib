@@ -17,29 +17,38 @@ class SemanticServiceHandlerGrpc(service_pb2_grpc.SemanticServiceServicer):
         self.chat_service = chat_service
 
     # ! TODO add handlers for chat and user services
-    def SearchPaper(self, request: service_pb2.SearchRequest, context: grpc.ServicerContext) -> service_pb2.PapersResponse:
+    def SearchPaper(self, request: service_pb2.SearchRequest, context: grpc.ServicerContext) -> service_pb2.ChatMessage:
         self.logger.info(f"SearchPaper request: {request.Input_data}")
         try:
+            
+            if request.Chat_id == 0:
+                self.logger.error("SearchPaper failed missing argument chatID")
+                context.set_code(grpc.StatusCode.INVALID_ARGUMENT)
+                context.set_details("missing argument chatID")
+                return service_pb2.ChatMessage()
+            
+            # ! Check user id for chat id
+            if not self.chat_service.is_chat_owner(request.Chat_id,request.User_id):
+                context.set_code(grpc.StatusCode.PERMISSION_DENIED)
+                return service_pb2.ChatMessage()
+
             matching_papers = self.search_service.search_paper(request.Input_data)
 
-            papers_resp = service_pb2.PapersResponse()
-            for paper in matching_papers:
-                papers_resp.Papers.append(self._paper_to_proto(paper))
-
-            if request.Chat_id > 0:
-                self.chat_service.record_chat_message(
-                    request.Chat_id,
-                    request.Input_data,
-                    matching_papers,
-                )
-            return papers_resp
+            res = self.chat_service.record_chat_message(
+                request.Chat_id,
+                request.Input_data,
+                matching_papers,
+            )
+            message = self._chat_message_to_proto(res)
+            return message
+            
         except Exception as e:
             self.logger.error("SearchPaper failed", error=str(e))
             context.set_code(grpc.StatusCode.INTERNAL)
             context.set_details(str(e))
-            return service_pb2.PapersResponse()
+            return service_pb2.ChatMessage()
 
-    def AddPaper(self, request: service_pb2.AddRequest, context: grpc.ServicerContext) -> service_pb2.ErrorResponse:
+    def AddPaper(self, request: service_pb2.AddRequest, context: grpc.ServicerContext) -> service_pb2.PaperResponse:
         self.logger.info(f"AddPaper request: {request.Title}")
 
         # Placeholder for future implementation
@@ -50,10 +59,8 @@ class SemanticServiceHandlerGrpc(service_pb2_grpc.SemanticServiceServicer):
             Year=request.Year,
             Best_oa_location=request.Best_oa_location
         )
-
-        return service_pb2.ErrorResponse(
-            Error=""
-        )
+        context.set_code(grpc.StatusCode.UNIMPLEMENTED)
+        return paper
     
     def CreateNewChat(self, request: service_pb2.Chat, context: grpc.ServicerContext)->service_pb2.ChatResp:
         self.logger.info(f"CreateNewChat request: user_id={request.User_id}")
@@ -69,6 +76,10 @@ class SemanticServiceHandlerGrpc(service_pb2_grpc.SemanticServiceServicer):
     def GetChatHistory(self, request: service_pb2.HistoryReq, context: grpc.ServicerContext)->service_pb2.HistoryResp:
         self.logger.info(f"GetChatHistory request: chat_id={request.Chat_id}")
         try:
+            # ! Check user id for chat id
+            if not self.chat_service.is_chat_owner(request.Chat_id,request.User_id):
+                context.set_code(grpc.StatusCode.PERMISSION_DENIED)
+                return service_pb2.HistoryResp()
             history = self.chat_service.get_chat_history(request.Chat_id)
             resp = service_pb2.HistoryResp()
             for message in history:

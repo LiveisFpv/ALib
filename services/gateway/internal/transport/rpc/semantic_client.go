@@ -10,15 +10,14 @@ import (
 	"google.golang.org/grpc/credentials/insecure"
 )
 
-// AIClient is a thin alias to the generated client for semantic service.
 // Kept to allow inversion and easier replacement/mocking if needed.
-type AIClient interface {
+type SemanticClient interface {
 	pb.SemanticServiceClient
 }
 
-// NewAIClient dials the AI gRPC service and returns the client and underlying connection.
+// NewSemanticClient dials the AI gRPC service and returns the client and underlying connection.
 // Caller is responsible for closing the returned connection.
-func NewAIClient(ctx context.Context, addr string, timeout time.Duration, opts ...grpc.DialOption) (AIClient, *grpc.ClientConn, error) {
+func NewSemanticService(ctx context.Context, addr string, timeout time.Duration, opts ...grpc.DialOption) (SemanticClient, *grpc.ClientConn, error) {
 	dctx := ctx
 	var cancel context.CancelFunc
 	if timeout > 0 {
@@ -27,6 +26,12 @@ func NewAIClient(ctx context.Context, addr string, timeout time.Duration, opts .
 	}
 
 	base := []grpc.DialOption{grpc.WithTransportCredentials(insecure.NewCredentials())}
+	if timeout > 0 {
+		base = append(base,
+			grpc.WithChainUnaryInterceptor(UnaryTimeoutInterceptor(timeout)),
+			grpc.WithChainStreamInterceptor(StreamTimeoutInterceptor(timeout)),
+		)
+	}
 	if len(opts) > 0 {
 		base = append(base, opts...)
 	}

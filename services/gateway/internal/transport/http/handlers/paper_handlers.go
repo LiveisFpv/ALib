@@ -1,28 +1,27 @@
 package handlers
 
 import (
-	pb "VKR_gateway_service/gen/go"
 	"VKR_gateway_service/internal/app"
+	"VKR_gateway_service/internal/domain"
 	"VKR_gateway_service/internal/transport/http/presenters"
-	"context"
-	"fmt"
 	"net/http"
 
 	"github.com/gin-gonic/gin"
-	"google.golang.org/grpc/status"
 )
 
 // PaperAdd
 // @Summary Add paper
 // @Description Add a paper to the index
-// @Tags ai
+// @Tags paper
 // @Accept json
 // @Produce json
 // @Param data body presenters.AddPaperRequest true "Paper data"
-// @Success 200 {object} map[string]string
+// @Success 200 {object} presenters.Paper
 // @Failure 400 {object} presenters.ErrorResponse
 // @Failure 401 {object} presenters.ErrorResponse
+// @Failure 403 {object} presenters.ErrorResponse
 // @Failure 500 {object} presenters.ErrorResponse
+// @Failure 502 {object} presenters.ErrorResponse
 // @Router /ai/paper/add [post]
 func PaperAdd(ctx *gin.Context, a *app.App) {
 	var in presenters.AddPaperRequest
@@ -30,49 +29,37 @@ func PaperAdd(ctx *gin.Context, a *app.App) {
 		ctx.JSON(http.StatusBadRequest, presenters.Error(err))
 		return
 	}
-
-	req := &pb.AddRequest{
-		ID:             in.Id,
-		Title:          in.Title,
-		Abstract:       in.Abstract,
-		Year:           int64(in.Year),
-		BestOaLocation: in.Best_oa_location,
+	paper := &domain.Paper{
+		Id:               in.Id,
+		Title:            in.Title,
+		Abstract:         in.Abstract,
+		Year:             in.Year,
+		Best_oa_location: in.Best_oa_location,
 	}
-	if len(in.ReferencedPapers) > 0 {
-		req.ReferencedWorks = make([]*pb.ReferencedWorks, 0, len(in.ReferencedPapers))
-		for _, r := range in.ReferencedPapers {
-			req.ReferencedWorks = append(req.ReferencedWorks, &pb.ReferencedWorks{ID: r.Id})
-		}
+	reference := make([]*domain.ReferencedPaper, 0, len(in.ReferencedPapers))
+	for _, p := range in.ReferencedPapers {
+		reference = append(reference, &domain.ReferencedPaper{
+			Id: p.Id,
+		})
 	}
-	if len(in.RelatedPaper) > 0 {
-		req.RelatedWorks = make([]*pb.RelatedWorks, 0, len(in.RelatedPaper))
-		for _, r := range in.RelatedPaper {
-			req.RelatedWorks = append(req.RelatedWorks, &pb.RelatedWorks{ID: r.Id})
-		}
+	relate := make([]*domain.RelatedPaper, 0, len(in.RelatedPaper))
+	for _, p := range in.RelatedPaper {
+		relate = append(relate, &domain.RelatedPaper{
+			Id: p.Id,
+		})
 	}
-
-	rctx := ctx.Request.Context()
-	if a.Config.GRPCTimeout > 0 {
-		var cancel context.CancelFunc
-		rctx, cancel = context.WithTimeout(rctx, a.Config.GRPCTimeout)
-		defer cancel()
-	}
-	resp, err := a.AI.AddPaper(rctx, req)
+	paper, err := a.PaperService.AddPaper(ctx, paper, reference, relate)
 	if err != nil {
-		if a.Logger != nil {
-			a.Logger.WithError(err).WithField("id", in.Id).Error("AI AddPaper RPC failed")
-		}
-		if s, ok := status.FromError(err); ok {
-			ctx.JSON(mapGRPCToHTTP(s.Code()), presenters.Error(fmt.Errorf(s.Message())))
-			return
-		}
-		ctx.JSON(http.StatusBadGateway, presenters.Error(err))
-		return
-	}
-	if msg := resp.GetError(); msg != "" {
-		ctx.JSON(http.StatusBadRequest, &presenters.ErrorResponse{Error: msg})
+		ctx.JSON(mapGRPCToHTTP(err), presenters.Error(err))
 		return
 	}
 
-	ctx.JSON(http.StatusOK, gin.H{"status": "ok"})
+	ctx.JSON(http.StatusOK, presenters.Paper{
+		Id:               paper.Id,
+		Title:            paper.Title,
+		Abstract:         paper.Abstract,
+		Year:             paper.Year,
+		Best_oa_location: paper.Best_oa_location,
+		State:            paper.State,
+	})
 }

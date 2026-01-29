@@ -47,8 +47,8 @@ type SemanticServiceClient interface {
 	DeleteChat(ctx context.Context, in *DeleteChatReq, opts ...grpc.CallOption) (*ErrorResponse, error)
 	GetUserChats(ctx context.Context, in *UserChatsReq, opts ...grpc.CallOption) (*ChatsResp, error)
 	GetAuthorPapers(ctx context.Context, in *AuthorPaperReq, opts ...grpc.CallOption) (*PapersResponse, error)
-	SearchPaper(ctx context.Context, in *SearchRequest, opts ...grpc.CallOption) (*PapersResponse, error)
-	AddPaper(ctx context.Context, in *AddRequest, opts ...grpc.CallOption) (*ErrorResponse, error)
+	SearchPaper(ctx context.Context, in *SearchRequest, opts ...grpc.CallOption) (*ChatMessage, error)
+	AddPaper(ctx context.Context, in *AddRequest, opts ...grpc.CallOption) (*PaperResponse, error)
 }
 
 type semanticServiceClient struct {
@@ -159,9 +159,9 @@ func (c *semanticServiceClient) GetAuthorPapers(ctx context.Context, in *AuthorP
 	return out, nil
 }
 
-func (c *semanticServiceClient) SearchPaper(ctx context.Context, in *SearchRequest, opts ...grpc.CallOption) (*PapersResponse, error) {
+func (c *semanticServiceClient) SearchPaper(ctx context.Context, in *SearchRequest, opts ...grpc.CallOption) (*ChatMessage, error) {
 	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
-	out := new(PapersResponse)
+	out := new(ChatMessage)
 	err := c.cc.Invoke(ctx, SemanticService_SearchPaper_FullMethodName, in, out, cOpts...)
 	if err != nil {
 		return nil, err
@@ -169,9 +169,9 @@ func (c *semanticServiceClient) SearchPaper(ctx context.Context, in *SearchReque
 	return out, nil
 }
 
-func (c *semanticServiceClient) AddPaper(ctx context.Context, in *AddRequest, opts ...grpc.CallOption) (*ErrorResponse, error) {
+func (c *semanticServiceClient) AddPaper(ctx context.Context, in *AddRequest, opts ...grpc.CallOption) (*PaperResponse, error) {
 	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
-	out := new(ErrorResponse)
+	out := new(PaperResponse)
 	err := c.cc.Invoke(ctx, SemanticService_AddPaper_FullMethodName, in, out, cOpts...)
 	if err != nil {
 		return nil, err
@@ -193,8 +193,8 @@ type SemanticServiceServer interface {
 	DeleteChat(context.Context, *DeleteChatReq) (*ErrorResponse, error)
 	GetUserChats(context.Context, *UserChatsReq) (*ChatsResp, error)
 	GetAuthorPapers(context.Context, *AuthorPaperReq) (*PapersResponse, error)
-	SearchPaper(context.Context, *SearchRequest) (*PapersResponse, error)
-	AddPaper(context.Context, *AddRequest) (*ErrorResponse, error)
+	SearchPaper(context.Context, *SearchRequest) (*ChatMessage, error)
+	AddPaper(context.Context, *AddRequest) (*PaperResponse, error)
 	mustEmbedUnimplementedSemanticServiceServer()
 }
 
@@ -235,10 +235,10 @@ func (UnimplementedSemanticServiceServer) GetUserChats(context.Context, *UserCha
 func (UnimplementedSemanticServiceServer) GetAuthorPapers(context.Context, *AuthorPaperReq) (*PapersResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method GetAuthorPapers not implemented")
 }
-func (UnimplementedSemanticServiceServer) SearchPaper(context.Context, *SearchRequest) (*PapersResponse, error) {
+func (UnimplementedSemanticServiceServer) SearchPaper(context.Context, *SearchRequest) (*ChatMessage, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method SearchPaper not implemented")
 }
-func (UnimplementedSemanticServiceServer) AddPaper(context.Context, *AddRequest) (*ErrorResponse, error) {
+func (UnimplementedSemanticServiceServer) AddPaper(context.Context, *AddRequest) (*PaperResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method AddPaper not implemented")
 }
 func (UnimplementedSemanticServiceServer) mustEmbedUnimplementedSemanticServiceServer() {}

@@ -7,7 +7,7 @@ import (
 )
 
 type Config struct {
-	PostgresConfig      PostgresConfig
+	// PostgresConfig      PostgresConfig
 	HttpServerConfig    HTTPServerConfig
 	Domain              string   `env:"DOMAIN" env-default:"localhost"`
 	PublicURL           string   `env:"PUBLIC_URL"`

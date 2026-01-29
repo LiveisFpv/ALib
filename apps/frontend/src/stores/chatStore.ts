@@ -51,9 +51,7 @@ function sortChatsByUpdatedAt(chats: ChatSession[]) {
 }
 
 function sortMessagesByUpdatedAt(messages: ChatMessage[]) {
-  return [...messages].sort(
-    (a, b) => (a.updatedAt || a.createdAt) - (b.updatedAt || b.createdAt),
-  )
+  return [...messages].sort((a, b) => (a.updatedAt || a.createdAt) - (b.updatedAt || b.createdAt))
 }
 
 function mapChatFromApi(chat: ChatResponse, existing?: ChatSession): ChatSession {
@@ -142,10 +140,10 @@ export const useChatStore = defineStore('chat', () => {
     chat.historyLoaded = true
   }
 
-  function addMessage(chatId: number, query: string, results: PaperCard[]) {
+  function addMessage(chatId: number, query: string, results: PaperCard[], date: string) {
     const chat = chats.value.find((item) => item.id === chatId)
     if (!chat) return null
-    const now = Date.now()
+    const now = toTimestamp(date) ? toTimestamp(date) : Date.now()
     const message: ChatMessage = {
       id: makeId(),
       query,

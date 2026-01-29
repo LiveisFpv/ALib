@@ -87,12 +87,12 @@ class SemanticServiceStub(object):
         self.SearchPaper = channel.unary_unary(
                 '/semantic.SemanticService/SearchPaper',
                 request_serializer=service__pb2.SearchRequest.SerializeToString,
-                response_deserializer=service__pb2.PapersResponse.FromString,
+                response_deserializer=service__pb2.ChatMessage.FromString,
                 _registered_method=True)
         self.AddPaper = channel.unary_unary(
                 '/semantic.SemanticService/AddPaper',
                 request_serializer=service__pb2.AddRequest.SerializeToString,
-                response_deserializer=service__pb2.ErrorResponse.FromString,
+                response_deserializer=service__pb2.PaperResponse.FromString,
                 _registered_method=True)
 
 
@@ -140,14 +140,14 @@ class SemanticServiceServicer(object):
         raise NotImplementedError('Method not implemented!')
 
     def UpdateChat(self, request, context):
-        """Next
+        """Done
         """
         context.set_code(grpc.StatusCode.UNIMPLEMENTED)
         context.set_details('Method not implemented!')
         raise NotImplementedError('Method not implemented!')
 
     def DeleteChat(self, request, context):
-        """Next
+        """Done
         """
         context.set_code(grpc.StatusCode.UNIMPLEMENTED)
         context.set_details('Method not implemented!')
@@ -167,7 +167,7 @@ class SemanticServiceServicer(object):
         raise NotImplementedError('Method not implemented!')
 
     def SearchPaper(self, request, context):
-        """Done
+        """In progress
         """
         context.set_code(grpc.StatusCode.UNIMPLEMENTED)
         context.set_details('Method not implemented!')
@@ -235,12 +235,12 @@ def add_SemanticServiceServicer_to_server(servicer, server):
             'SearchPaper': grpc.unary_unary_rpc_method_handler(
                     servicer.SearchPaper,
                     request_deserializer=service__pb2.SearchRequest.FromString,
-                    response_serializer=service__pb2.PapersResponse.SerializeToString,
+                    response_serializer=service__pb2.ChatMessage.SerializeToString,
             ),
             'AddPaper': grpc.unary_unary_rpc_method_handler(
                     servicer.AddPaper,
                     request_deserializer=service__pb2.AddRequest.FromString,
-                    response_serializer=service__pb2.ErrorResponse.SerializeToString,
+                    response_serializer=service__pb2.PaperResponse.SerializeToString,
             ),
     }
     generic_handler = grpc.method_handlers_generic_handler(
@@ -539,7 +539,7 @@ class SemanticService(object):
             target,
             '/semantic.SemanticService/SearchPaper',
             service__pb2.SearchRequest.SerializeToString,
-            service__pb2.PapersResponse.FromString,
+            service__pb2.ChatMessage.FromString,
             options,
             channel_credentials,
             insecure,
@@ -566,7 +566,7 @@ class SemanticService(object):
             target,
             '/semantic.SemanticService/AddPaper',
             service__pb2.AddRequest.SerializeToString,
-            service__pb2.ErrorResponse.FromString,
+            service__pb2.PaperResponse.FromString,
             options,
             channel_credentials,
             insecure,

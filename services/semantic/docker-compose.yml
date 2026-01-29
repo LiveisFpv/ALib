@@ -1,8 +1,8 @@
 services:
-  semantic-search:
+  semantic-service:
     build: .
-    image: semantic-search:latest
-    container_name: semantic-search
+    image: semantic-service:latest
+    container_name: semantic-service
     env_file:
       - .env
     environment:
@@ -63,7 +63,7 @@ services:
 
   pipeline-worker:
     # build: .
-    image: semantic-search:latest
+    image: semantic-service:latest
     container_name: semantic-pipeline
     command: ["python", "scripts/run_pipeline.py", "--mode", "serve"]
     env_file:
@@ -90,4 +90,5 @@ networks:
 volumes:
   hf-cache:
   postgres_semantic_data:
+    name: postgres_semantic_data
 
