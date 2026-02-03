@@ -12,6 +12,10 @@ class PipelineSettings:
     raw_dir: str = os.getenv("PIPELINE_RAW_DIR", "data/raw")
     processed_dir: str = os.getenv("PIPELINE_PROCESSED_DIR", "data/processed")
     index_dir: str = os.getenv("PIPELINE_INDEX_DIR", "data/index")
+    citation_edges: str | None = os.getenv("PIPELINE_CITATION_EDGES")
+    citation_cache_dir: str | None = os.getenv("PIPELINE_CITATION_CACHE_DIR")
+    citation_weights: str | None = os.getenv("PIPELINE_CITATION_WEIGHTS")
+    citation_recompute: bool = os.getenv("PIPELINE_CITATION_RECOMPUTE", "false").lower() in {"1", "true", "yes"}
     openalex_email: str | None = os.getenv("OPENALEX_EMAIL")
     openalex_en: int = int(os.getenv("PIPELINE_OPENALEX_EN", "1000000"))
     openalex_ru: int = int(os.getenv("PIPELINE_OPENALEX_RU", "550000"))

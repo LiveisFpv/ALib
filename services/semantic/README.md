@@ -123,10 +123,26 @@ python src/parser/e5_build_faiss.py \
 ```
 Результат: `faiss.index` (+ `.meta.json`) в `data/index`. Эти пути затем указываются в `.env`.
 
+6) Построение FAISS-индекса с учетом цитирований (экспериментально)
+```
+python src/parser/build_edges.py --indir data/processed --outdir data/graph
+```
+Результат: `edges_en.parquet` и `edges_ru.parquet` в указанной директории.
+```
+python src/parser/e5_build_faiss.py `
+  --emb-dir .\data\index `
+  --memfile doc_emb_both.f16.memmap `
+  --doc-ids doc_ids_both.npy `
+  --edges .\data\graph\edges_en.parquet .\data\graph\edges_ru.parquet `
+  --weights "self=1.0,out1=0.0,in1=0.05,out2=0.03,in2=0.025" `
+  --out .\data\index\faiss_citation.index
+```
+Результат: `faiss_citation.index` (+ `.meta.json`) в `data/index`. Эти пути затем указываются в `.env`.
+Подборка весов может быть произведена при помощи `scripts/bench.py`
+
 Оркестратор пайплайна
 - `scripts/run_pipeline.py --mode once` запустит последовательность шагов из `src/pipeline/runner.py`.
 - `scripts/run_pipeline.py --mode serve` запустит `PipelineWorker`, который ждёт POSIX-сигнал и по событию запускает пайплайн.
-
 
 ## gRPC API
 

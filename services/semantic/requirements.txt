@@ -13,3 +13,4 @@ numpy
 polars
 psycopg[binary]
 faiss-cpu
+pyarrow

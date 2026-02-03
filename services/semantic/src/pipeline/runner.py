@@ -87,6 +87,19 @@ class PipelineRunner:
             "--emb-dir",
             self.settings.index_dir,
         ]
+        if self.settings.citation_weights:
+            cmd.extend(["--weights", self.settings.citation_weights])
+            if not self.settings.citation_edges:
+                raise RuntimeError("PIPELINE_CITATION_EDGES must be set when using citation weights")
+            edge_paths = [p.strip() for p in self.settings.citation_edges.split(",") if p.strip()]
+            if not edge_paths:
+                raise RuntimeError("PIPELINE_CITATION_EDGES is empty after parsing")
+            cmd.append("--edges")
+            cmd.extend(edge_paths)
+            if self.settings.citation_cache_dir:
+                cmd.extend(["--cache-dir", self.settings.citation_cache_dir])
+            if self.settings.citation_recompute:
+                cmd.append("--recompute-cache")
         _run_command(cmd)
 
     def run_full(self) -> None:

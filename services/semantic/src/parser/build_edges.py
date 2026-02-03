@@ -26,7 +26,7 @@ if __name__ == "__main__":
     ap.add_argument("--outdir", required=True)
     args = ap.parse_args()
 
-    explode_edges(os.path.join(args.indir, "openalex_en.clean.parquet"),
+    explode_edges(os.path.join(args.indir, "openalex_en.merged.parquet"),
                   os.path.join(args.outdir, "edges_en.parquet"))
-    explode_edges(os.path.join(args.indir, "openalex_ru.clean.parquet"),
+    explode_edges(os.path.join(args.indir, "openalex_ru.merged.parquet"),
                   os.path.join(args.outdir, "edges_ru.parquet"))
