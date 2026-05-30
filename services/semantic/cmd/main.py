@@ -26,10 +26,12 @@ from src.services.ingestion.weighted_index import maybe_create_weighted_index_ma
 from src.services.search.faiss_index import FaissIndex
 from src.services.search.faiss_searcher import FaissSearcher
 from src.services.search.search_service import SearchService
+from src.services.author_profile_service import AuthorProfileService
 from src.services.submission_service import SubmissionService
 from src.storage.citation_repository import CitationRepository
 from src.services.user_service import UserService
 from src.storage.chat_repository import ChatRepository
+from src.storage.author_profile_repository import AuthorProfileRepository
 from src.storage.ingestion_repository import IngestionRepository
 from src.storage.paper_ingestion_repository import PaperIngestionRepository
 from src.storage.paper_repository import PaperRepository
@@ -95,6 +97,10 @@ def main() -> None:
         task_max_attempts=ingestion_settings.task_max_attempts,
         user_service=user_service,
     )
+    author_profile_service = AuthorProfileService(
+        AuthorProfileRepository(paper_repository=paper_repository),
+        user_service=user_service,
+    )
 
     service = SemanticServiceGrpc(
         search_service,
@@ -103,6 +109,7 @@ def main() -> None:
         logger,
         ingestion_service,
         submission_service,
+        author_profile_service,
     )
     try:
         service.serve(SEMANTIC_PORT)

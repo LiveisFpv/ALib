@@ -25,6 +25,10 @@ type Paper struct {
 	Identifiers      []PaperIdentifier `json:"identifiers"`
 }
 
+type PapersResponse struct {
+	Papers []Paper `json:"papers"`
+}
+
 type PaperIdentifier struct {
 	Type  string `json:"type"`
 	Value string `json:"value"`

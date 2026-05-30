@@ -430,3 +430,27 @@ class ModerateSubmissionRequest(_message.Message):
     Action: str
     Comment: str
     def __init__(self, Submission_id: _Optional[int] = ..., Action: _Optional[str] = ..., Comment: _Optional[str] = ...) -> None: ...
+
+class AuthorProfileRequest(_message.Message):
+    __slots__ = ()
+    def __init__(self) -> None: ...
+
+class AuthorProfileUpdateRequest(_message.Message):
+    __slots__ = ("Orcid", "Confirm_authorship")
+    ORCID_FIELD_NUMBER: _ClassVar[int]
+    CONFIRM_AUTHORSHIP_FIELD_NUMBER: _ClassVar[int]
+    Orcid: str
+    Confirm_authorship: bool
+    def __init__(self, Orcid: _Optional[str] = ..., Confirm_authorship: bool = ...) -> None: ...
+
+class AuthorProfileResponse(_message.Message):
+    __slots__ = ("Orcid", "Confirmed", "Confirmed_at", "Paper_count")
+    ORCID_FIELD_NUMBER: _ClassVar[int]
+    CONFIRMED_FIELD_NUMBER: _ClassVar[int]
+    CONFIRMED_AT_FIELD_NUMBER: _ClassVar[int]
+    PAPER_COUNT_FIELD_NUMBER: _ClassVar[int]
+    Orcid: str
+    Confirmed: bool
+    Confirmed_at: str
+    Paper_count: int
+    def __init__(self, Orcid: _Optional[str] = ..., Confirmed: bool = ..., Confirmed_at: _Optional[str] = ..., Paper_count: _Optional[int] = ...) -> None: ...

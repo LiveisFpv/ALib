@@ -44,8 +44,8 @@ const form = reactive({
 })
 
 const paper = computed(() => paperStore.getById(currentId.value))
-const canEdit = computed(() => (paper.value ? paperStore.canEdit(paper.value.id) : false))
-const canDelete = computed(() => (paper.value ? paperStore.canDelete(paper.value.id) : false))
+const canEdit = computed(() => (paper.value ? paperStore.canEdit(paper.value.id, paper.value.source) : false))
+const canDelete = computed(() => (paper.value ? paperStore.canDelete(paper.value.id, paper.value.source) : false))
 const statusLabel = computed(() => {
   const status = paper.value?.status ?? 'draft'
   return t(statusKeyMap[status])

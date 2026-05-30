@@ -41,6 +41,10 @@ const (
 	SemanticService_GetModerationSubmission_FullMethodName    = "/semantic.SemanticService/GetModerationSubmission"
 	SemanticService_UpdateModerationSubmission_FullMethodName = "/semantic.SemanticService/UpdateModerationSubmission"
 	SemanticService_ModerateSubmission_FullMethodName         = "/semantic.SemanticService/ModerateSubmission"
+	SemanticService_GetMyAuthorProfile_FullMethodName         = "/semantic.SemanticService/GetMyAuthorProfile"
+	SemanticService_UpsertMyAuthorProfile_FullMethodName      = "/semantic.SemanticService/UpsertMyAuthorProfile"
+	SemanticService_DeleteMyAuthorProfile_FullMethodName      = "/semantic.SemanticService/DeleteMyAuthorProfile"
+	SemanticService_ListMyAuthorPapers_FullMethodName         = "/semantic.SemanticService/ListMyAuthorPapers"
 )
 
 // SemanticServiceClient is the client API for SemanticService service.
@@ -69,6 +73,10 @@ type SemanticServiceClient interface {
 	GetModerationSubmission(ctx context.Context, in *GetModerationSubmissionRequest, opts ...grpc.CallOption) (*SubmissionResponse, error)
 	UpdateModerationSubmission(ctx context.Context, in *UpdateModerationSubmissionRequest, opts ...grpc.CallOption) (*SubmissionResponse, error)
 	ModerateSubmission(ctx context.Context, in *ModerateSubmissionRequest, opts ...grpc.CallOption) (*SubmissionResponse, error)
+	GetMyAuthorProfile(ctx context.Context, in *AuthorProfileRequest, opts ...grpc.CallOption) (*AuthorProfileResponse, error)
+	UpsertMyAuthorProfile(ctx context.Context, in *AuthorProfileUpdateRequest, opts ...grpc.CallOption) (*AuthorProfileResponse, error)
+	DeleteMyAuthorProfile(ctx context.Context, in *AuthorProfileRequest, opts ...grpc.CallOption) (*ErrorResponse, error)
+	ListMyAuthorPapers(ctx context.Context, in *AuthorProfileRequest, opts ...grpc.CallOption) (*PapersResponse, error)
 }
 
 type semanticServiceClient struct {
@@ -299,6 +307,46 @@ func (c *semanticServiceClient) ModerateSubmission(ctx context.Context, in *Mode
 	return out, nil
 }
 
+func (c *semanticServiceClient) GetMyAuthorProfile(ctx context.Context, in *AuthorProfileRequest, opts ...grpc.CallOption) (*AuthorProfileResponse, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(AuthorProfileResponse)
+	err := c.cc.Invoke(ctx, SemanticService_GetMyAuthorProfile_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *semanticServiceClient) UpsertMyAuthorProfile(ctx context.Context, in *AuthorProfileUpdateRequest, opts ...grpc.CallOption) (*AuthorProfileResponse, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(AuthorProfileResponse)
+	err := c.cc.Invoke(ctx, SemanticService_UpsertMyAuthorProfile_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *semanticServiceClient) DeleteMyAuthorProfile(ctx context.Context, in *AuthorProfileRequest, opts ...grpc.CallOption) (*ErrorResponse, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(ErrorResponse)
+	err := c.cc.Invoke(ctx, SemanticService_DeleteMyAuthorProfile_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *semanticServiceClient) ListMyAuthorPapers(ctx context.Context, in *AuthorProfileRequest, opts ...grpc.CallOption) (*PapersResponse, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(PapersResponse)
+	err := c.cc.Invoke(ctx, SemanticService_ListMyAuthorPapers_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 // SemanticServiceServer is the server API for SemanticService service.
 // All implementations must embed UnimplementedSemanticServiceServer
 // for forward compatibility.
@@ -325,6 +373,10 @@ type SemanticServiceServer interface {
 	GetModerationSubmission(context.Context, *GetModerationSubmissionRequest) (*SubmissionResponse, error)
 	UpdateModerationSubmission(context.Context, *UpdateModerationSubmissionRequest) (*SubmissionResponse, error)
 	ModerateSubmission(context.Context, *ModerateSubmissionRequest) (*SubmissionResponse, error)
+	GetMyAuthorProfile(context.Context, *AuthorProfileRequest) (*AuthorProfileResponse, error)
+	UpsertMyAuthorProfile(context.Context, *AuthorProfileUpdateRequest) (*AuthorProfileResponse, error)
+	DeleteMyAuthorProfile(context.Context, *AuthorProfileRequest) (*ErrorResponse, error)
+	ListMyAuthorPapers(context.Context, *AuthorProfileRequest) (*PapersResponse, error)
 	mustEmbedUnimplementedSemanticServiceServer()
 }
 
@@ -400,6 +452,18 @@ func (UnimplementedSemanticServiceServer) UpdateModerationSubmission(context.Con
 }
 func (UnimplementedSemanticServiceServer) ModerateSubmission(context.Context, *ModerateSubmissionRequest) (*SubmissionResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method ModerateSubmission not implemented")
+}
+func (UnimplementedSemanticServiceServer) GetMyAuthorProfile(context.Context, *AuthorProfileRequest) (*AuthorProfileResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method GetMyAuthorProfile not implemented")
+}
+func (UnimplementedSemanticServiceServer) UpsertMyAuthorProfile(context.Context, *AuthorProfileUpdateRequest) (*AuthorProfileResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method UpsertMyAuthorProfile not implemented")
+}
+func (UnimplementedSemanticServiceServer) DeleteMyAuthorProfile(context.Context, *AuthorProfileRequest) (*ErrorResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method DeleteMyAuthorProfile not implemented")
+}
+func (UnimplementedSemanticServiceServer) ListMyAuthorPapers(context.Context, *AuthorProfileRequest) (*PapersResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method ListMyAuthorPapers not implemented")
 }
 func (UnimplementedSemanticServiceServer) mustEmbedUnimplementedSemanticServiceServer() {}
 func (UnimplementedSemanticServiceServer) testEmbeddedByValue()                         {}
@@ -818,6 +882,78 @@ func _SemanticService_ModerateSubmission_Handler(srv interface{}, ctx context.Co
 	return interceptor(ctx, in, info, handler)
 }
 
+func _SemanticService_GetMyAuthorProfile_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(AuthorProfileRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(SemanticServiceServer).GetMyAuthorProfile(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: SemanticService_GetMyAuthorProfile_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(SemanticServiceServer).GetMyAuthorProfile(ctx, req.(*AuthorProfileRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _SemanticService_UpsertMyAuthorProfile_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(AuthorProfileUpdateRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(SemanticServiceServer).UpsertMyAuthorProfile(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: SemanticService_UpsertMyAuthorProfile_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(SemanticServiceServer).UpsertMyAuthorProfile(ctx, req.(*AuthorProfileUpdateRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _SemanticService_DeleteMyAuthorProfile_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(AuthorProfileRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(SemanticServiceServer).DeleteMyAuthorProfile(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: SemanticService_DeleteMyAuthorProfile_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(SemanticServiceServer).DeleteMyAuthorProfile(ctx, req.(*AuthorProfileRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _SemanticService_ListMyAuthorPapers_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(AuthorProfileRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(SemanticServiceServer).ListMyAuthorPapers(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: SemanticService_ListMyAuthorPapers_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(SemanticServiceServer).ListMyAuthorPapers(ctx, req.(*AuthorProfileRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 // SemanticService_ServiceDesc is the grpc.ServiceDesc for SemanticService service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
@@ -912,6 +1048,22 @@ var SemanticService_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "ModerateSubmission",
 			Handler:    _SemanticService_ModerateSubmission_Handler,
+		},
+		{
+			MethodName: "GetMyAuthorProfile",
+			Handler:    _SemanticService_GetMyAuthorProfile_Handler,
+		},
+		{
+			MethodName: "UpsertMyAuthorProfile",
+			Handler:    _SemanticService_UpsertMyAuthorProfile_Handler,
+		},
+		{
+			MethodName: "DeleteMyAuthorProfile",
+			Handler:    _SemanticService_DeleteMyAuthorProfile_Handler,
+		},
+		{
+			MethodName: "ListMyAuthorPapers",
+			Handler:    _SemanticService_ListMyAuthorPapers_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},

@@ -101,6 +101,10 @@ func NewHTTPServer(conf *config.Config, a *app.App) *Server {
 		middlewares.RequireAnyRole("MODERATOR", "ADMIN"),
 	)
 	ModerationRouter(moderation, a)
+
+	authorProfile := s.app.Group("/api/author-profile")
+	authorProfile.Use(middlewares.AuthMiddleware(a))
+	AuthorProfileRouter(authorProfile, a)
 	return &s
 }
 

@@ -6,7 +6,10 @@ import type {
   ChatResponse,
   ChatsResponse,
   CreateChatRequest,
+  AuthorProfileResponse,
+  AuthorProfileUpdateRequest,
   ModerateSubmissionRequest,
+  PapersResponse,
   SubmissionListQuery,
   SubmissionListResponse,
   SubmissionResponse,
@@ -93,5 +96,17 @@ export const AlibApi = {
     return api
       .post<SubmissionResponse>(`/moderation/submissions/${id}/moderate`, payload)
       .then((r) => r.data)
+  },
+  getAuthorProfile() {
+    return api.get<AuthorProfileResponse>('/author-profile/orcid').then((r) => r.data)
+  },
+  updateAuthorProfile(payload: AuthorProfileUpdateRequest) {
+    return api.put<AuthorProfileResponse>('/author-profile/orcid', payload).then((r) => r.data)
+  },
+  deleteAuthorProfile() {
+    return api.delete<void>('/author-profile/orcid').then((r) => r.data)
+  },
+  listAuthorPapers() {
+    return api.get<PapersResponse>('/author-profile/papers').then((r) => r.data)
   },
 }

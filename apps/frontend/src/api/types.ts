@@ -149,6 +149,18 @@ export interface PaperResponse {
   state?: string
 }
 
+export interface AuthorProfileResponse {
+  orcid?: string
+  confirmed: boolean
+  confirmed_at?: string
+  paper_count: number
+}
+
+export interface AuthorProfileUpdateRequest {
+  orcid: string
+  confirm_authorship: boolean
+}
+
 export interface PaperIdentifier {
   type?: string
   value?: string

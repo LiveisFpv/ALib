@@ -4,6 +4,7 @@ from concurrent import futures
 from src.lib.logger import Logger
 from src.http.grpc import service_pb2_grpc
 from src.services.chat_service import ChatService
+from src.services.author_profile_service import AuthorProfileService
 from src.services.ingestion.ingestion_service import IngestionService
 from src.services.search.search_service import SearchService
 from src.services.submission_service import SubmissionService
@@ -20,6 +21,7 @@ class SemanticServiceGrpc:
         logger: Logger,
         ingestion_service: IngestionService | None = None,
         submission_service: SubmissionService | None = None,
+        author_profile_service: AuthorProfileService | None = None,
     ):
         self.logger = logger
         self.logger.info("Starting grpc server")
@@ -33,6 +35,7 @@ class SemanticServiceGrpc:
             logger,
             ingestion_service,
             submission_service,
+            author_profile_service,
         )
 
     def serve(self, port=50051):

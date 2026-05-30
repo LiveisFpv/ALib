@@ -25,6 +25,10 @@ service SemanticService{
     rpc GetModerationSubmission (GetModerationSubmissionRequest) returns (SubmissionResponse);
     rpc UpdateModerationSubmission (UpdateModerationSubmissionRequest) returns (SubmissionResponse);
     rpc ModerateSubmission (ModerateSubmissionRequest) returns (SubmissionResponse);
+    rpc GetMyAuthorProfile (AuthorProfileRequest) returns (AuthorProfileResponse);
+    rpc UpsertMyAuthorProfile (AuthorProfileUpdateRequest) returns (AuthorProfileResponse);
+    rpc DeleteMyAuthorProfile (AuthorProfileRequest) returns (ErrorResponse);
+    rpc ListMyAuthorPapers (AuthorProfileRequest) returns (PapersResponse);
 }
 
 message InstitutionReq {
@@ -275,4 +279,19 @@ message ModerateSubmissionRequest{
     int64 Submission_id = 1;
     string Action = 2;
     string Comment = 3;
+}
+
+message AuthorProfileRequest{
+}
+
+message AuthorProfileUpdateRequest{
+    string Orcid = 1;
+    bool Confirm_authorship = 2;
+}
+
+message AuthorProfileResponse{
+    string Orcid = 1;
+    bool Confirmed = 2;
+    string Confirmed_at = 3;
+    int64 Paper_count = 4;
 }

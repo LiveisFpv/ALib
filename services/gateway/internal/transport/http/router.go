@@ -32,6 +32,13 @@ func ModerationRouter(r *gin.RouterGroup, a *app.App) {
 	r.POST("/:submission_id/moderate", func(ctx *gin.Context) { handlers.ModerateSubmission(ctx, a) })
 }
 
+func AuthorProfileRouter(r *gin.RouterGroup, a *app.App) {
+	r.GET("/orcid", func(ctx *gin.Context) { handlers.GetAuthorProfile(ctx, a) })
+	r.PUT("/orcid", func(ctx *gin.Context) { handlers.UpdateAuthorProfile(ctx, a) })
+	r.DELETE("/orcid", func(ctx *gin.Context) { handlers.DeleteAuthorProfile(ctx, a) })
+	r.GET("/papers", func(ctx *gin.Context) { handlers.ListAuthorPapers(ctx, a) })
+}
+
 func SSORouter(r *gin.RouterGroup, a *app.App) {
 
 }

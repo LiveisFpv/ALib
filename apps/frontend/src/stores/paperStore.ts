@@ -2,6 +2,7 @@ import { defineStore } from 'pinia'
 import { computed, ref } from 'vue'
 import { AlibApi } from '@/api/useAlibApi'
 import type {
+  PaperResponse,
   SubmissionListQuery,
   SubmissionRecord,
   SubmissionStatus,
@@ -25,6 +26,7 @@ export interface PaperSummary {
 }
 
 export interface PaperDetail extends PaperSummary {
+  source: 'submission' | 'catalog'
   source_identifier?: string
   abstract?: string
   year?: number
@@ -57,6 +59,7 @@ function normalizeLinkArray(values: string[] | undefined): PaperLink[] {
 function mapSubmission(submission: SubmissionRecord): PaperDetail {
   return {
     id: String(submission.submission_id),
+    source: 'submission',
     title: submission.title?.trim() || '',
     status: submission.status,
     updatedAt: submission.updated_at || '',
@@ -74,6 +77,47 @@ function mapSubmission(submission: SubmissionRecord): PaperDetail {
     createdAt: submission.created_at || undefined,
     moderatedAt: submission.moderated_at || undefined,
   }
+}
+
+function mapCatalogPaper(paper: PaperResponse): PaperDetail | null {
+  const paperId = String(paper.id || '').trim()
+  if (!paperId) return null
+  const numericPaperId = Number(paperId)
+  return {
+    id: paperId,
+    source: 'catalog',
+    title: paper.title?.trim() || '',
+    status: 'approved',
+    updatedAt: '',
+    approvedPaperId: Number.isFinite(numericPaperId) && numericPaperId > 0 ? numericPaperId : undefined,
+    source_identifier: pickPrimaryIdentifier(paper),
+    abstract: paper.abstract || undefined,
+    year: paper.year || undefined,
+    best_oa_location: paper.best_oa_location || undefined,
+    related_paper: normalizeLinkArray(paper.related_works),
+    referenced_paper: normalizeLinkArray(paper.referenced_works),
+    createdByUserId: 0,
+  }
+}
+
+function pickPrimaryIdentifier(paper: PaperResponse): string | undefined {
+  const identifiers = paper.identifiers ?? []
+  const preferred = identifiers.find((item) => item.type === 'doi') || identifiers[0]
+  return preferred?.value || paper.id || undefined
+}
+
+function mergeMyPapers(submissions: PaperDetail[], catalog: PaperDetail[]) {
+  const approvedPaperIds = new Set(
+    submissions
+      .map((paper) => paper.approvedPaperId)
+      .filter((value): value is number => typeof value === 'number' && value > 0)
+      .map(String),
+  )
+  const catalogWithoutPublishedSubmissions = catalog.filter((paper) => {
+    const paperId = paper.approvedPaperId ? String(paper.approvedPaperId) : paper.id
+    return !approvedPaperIds.has(paperId)
+  })
+  return [...submissions, ...catalogWithoutPublishedSubmissions]
 }
 
 function mapSubmissionInput(payload: PaperPayload): SubmissionUpsertRequest {
@@ -100,20 +144,25 @@ export const usePaperStore = defineStore('paper', () => {
   const papers = computed(() => items.value)
 
   const editablePaperIds = computed(() =>
-    papers.value.filter((paper) => EDITABLE_STATUSES.has(paper.status)).map((paper) => paper.id),
+    papers.value
+      .filter((paper) => paper.source === 'submission' && EDITABLE_STATUSES.has(paper.status))
+      .map((paper) => paper.id),
   )
 
-  function canEdit(id: string) {
+  function canEdit(id: string, source?: PaperDetail['source']) {
+    if (source === 'catalog') return false
     return editablePaperIds.value.includes(id)
   }
 
-  function canDelete(id: string) {
-    return canEdit(id)
+  function canDelete(id: string, source?: PaperDetail['source']) {
+    return canEdit(id, source)
   }
 
   function upsertPaper(submission: SubmissionRecord) {
     const next = mapSubmission(submission)
-    const index = items.value.findIndex((paper) => paper.id === next.id)
+    const index = items.value.findIndex(
+      (paper) => paper.source === 'submission' && paper.id === next.id,
+    )
     if (index >= 0) {
       items.value.splice(index, 1, next)
     } else {
@@ -138,19 +187,29 @@ export const usePaperStore = defineStore('paper', () => {
   }
 
   function getById(id: string) {
-    return papers.value.find((paper) => paper.id === id)
+    return (
+      papers.value.find((paper) => paper.source === 'submission' && paper.id === id) ??
+      papers.value.find((paper) => paper.id === id)
+    )
   }
 
   async function loadMyPapers(query: SubmissionListQuery = {}) {
     if (isLoading.value) return
     isLoading.value = true
     try {
-      const response = await AlibApi.listMySubmissions({
-        limit: query.limit ?? 100,
-        offset: query.offset ?? 0,
-        statuses: query.statuses,
-      })
-      items.value = response.items.map(mapSubmission)
+      const [submissionsResponse, catalogResponse] = await Promise.all([
+        AlibApi.listMySubmissions({
+          limit: query.limit ?? 100,
+          offset: query.offset ?? 0,
+          statuses: query.statuses,
+        }),
+        AlibApi.listAuthorPapers(),
+      ])
+      const submissions = submissionsResponse.items.map(mapSubmission)
+      const catalog = (catalogResponse.papers ?? [])
+        .map(mapCatalogPaper)
+        .filter((paper): paper is PaperDetail => paper !== null)
+      items.value = mergeMyPapers(submissions, catalog)
       lastLoaded.value = new Date().toISOString()
     } finally {
       isLoading.value = false

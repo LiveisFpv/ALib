@@ -2,6 +2,7 @@
 import { computed, onBeforeUnmount, onMounted, reactive, ref, watch } from 'vue'
 import { useRouter } from 'vue-router'
 import { useAuthStore } from '@/stores/authStore'
+import { useAuthorProfileStore } from '@/stores/authorProfileStore'
 import { useSettingStore } from '@/stores/settingStore'
 import { useI18n } from '@/i18n'
 import type { SettingsSection } from '@/stores/settingsModalStore'
@@ -25,12 +26,14 @@ const emit = defineEmits<{
 
 const router = useRouter()
 const auth = useAuthStore()
+const authorProfile = useAuthorProfileStore()
 const appSettings = useSettingStore()
 const { locale, setLocale, t } = useI18n()
 const activeSection = ref<SettingsSection>(props.initialSection)
 const theme = ref<Theme>('dark')
 const currentLang = computed(() => locale.value)
 const saving = ref(false)
+const orcidSaving = ref(false)
 const successMsg = ref('')
 const errorMsg = ref('')
 
@@ -41,6 +44,79 @@ const form = reactive({
   locale_type: '',
   password: '',
 })
+
+const orcidForm = reactive({
+  orcid: '',
+  confirm_authorship: false,
+})
+
+function formatOrcid(value: string) {
+  let text = String(value || '').trim()
+  const urlMatch = text.match(/(?:https?:\/\/)?orcid\.org\/([^/?#\s]+)/i)
+  if (urlMatch?.[1]) text = urlMatch[1]
+
+  const raw = text.toUpperCase().replace(/[^0-9X]/g, '')
+  let compact = ''
+  for (const char of raw) {
+    if (compact.length < 15) {
+      if (/\d/.test(char)) compact += char
+      continue
+    }
+    if (compact.length === 15 && (/^\d$/.test(char) || char === 'X')) {
+      compact += char
+    }
+    if (compact.length >= 16) break
+  }
+
+  return compact.match(/.{1,4}/g)?.join('-') ?? ''
+}
+
+function isValidOrcidFormat(orcid: string) {
+  return /^[0-9]{4}-[0-9]{4}-[0-9]{4}-[0-9]{3}[0-9X]$/.test(orcid)
+}
+
+function isValidOrcidChecksum(orcid: string) {
+  const digits = orcid.replace(/-/g, '')
+  if (digits.length !== 16) return false
+  let total = 0
+  for (const char of digits.slice(0, 15)) {
+    total = (total + Number(char)) * 2
+  }
+  const check = (12 - (total % 11)) % 11
+  const expected = check === 10 ? 'X' : String(check)
+  return digits[15] === expected
+}
+
+function validateOrcidForSave() {
+  const orcid = formatOrcid(orcidForm.orcid)
+  orcidForm.orcid = orcid
+  if (!orcid) return t('profile.orcid.required')
+  if (!isValidOrcidFormat(orcid)) return t('profile.orcid.invalidFormat')
+  if (!isValidOrcidChecksum(orcid)) return t('profile.orcid.invalidChecksum')
+  return ''
+}
+
+function getOrcidErrorMessage(error: any) {
+  const status = Number(error?.status || 0)
+  const message = String(error?.message || '').toLowerCase()
+  if (status === 409 || message.includes('already linked')) return t('profile.orcid.conflict')
+  if (status === 401 || message.includes('sign in')) return t('profile.orcid.authRequired')
+  if (message.includes('confirmation') || message.includes('confirm authorship')) {
+    return t('profile.orcid.confirmRequired')
+  }
+  if (message.includes('checksum')) return t('profile.orcid.invalidChecksum')
+  if (message.includes('format')) return t('profile.orcid.invalidFormat')
+  if (message.includes('required') || message.includes('enter orcid')) return t('profile.orcid.required')
+  if (status === 502 || status >= 500) return t('profile.orcid.serverError')
+  return t('profile.orcid.failed')
+}
+
+function handleOrcidInput(event: Event) {
+  const input = event.target as HTMLInputElement
+  const formatted = formatOrcid(input.value)
+  orcidForm.orcid = formatted
+  input.value = formatted
+}
 
 watch(
   () => props.initialSection,
@@ -72,6 +148,14 @@ watch(
   { immediate: true },
 )
 
+watch(
+  () => authorProfile.profile,
+  () => {
+    resetOrcidFormFromProfile()
+  },
+  { immediate: true },
+)
+
 function resetFormFromUser() {
   const user = auth.User
   if (!user) return
@@ -80,6 +164,12 @@ function resetFormFromUser() {
   form.last_name = user.last_name || ''
   form.locale_type = user.locale_type || ''
   form.password = ''
+}
+
+function resetOrcidFormFromProfile() {
+  const profile = authorProfile.profile
+  orcidForm.orcid = profile?.orcid || ''
+  orcidForm.confirm_authorship = !!profile?.confirmed
 }
 
 function readSavedTheme(): Theme | null {
@@ -145,6 +235,19 @@ function buildPayload(): UserUpdateRequest {
 
 const hasProfileChanges = computed(() => Object.keys(buildPayload()).length > 0)
 
+const hasOrcidChanges = computed(() => {
+  const profile = authorProfile.profile
+  return (
+    formatOrcid(orcidForm.orcid) !== (profile?.orcid || '') ||
+    orcidForm.confirm_authorship !== !!profile?.confirmed
+  )
+})
+
+const orcidStatus = computed(() => {
+  if (authorProfile.profile?.confirmed) return t('profile.orcid.confirmed')
+  return t('profile.orcid.notLinked')
+})
+
 async function saveProfile() {
   successMsg.value = ''
   errorMsg.value = ''
@@ -161,6 +264,47 @@ async function saveProfile() {
     errorMsg.value = e?.message || t('profile.msg.failed')
   } finally {
     saving.value = false
+  }
+}
+
+async function saveOrcidProfile() {
+  successMsg.value = ''
+  errorMsg.value = ''
+  if (!orcidForm.confirm_authorship) {
+    errorMsg.value = t('profile.orcid.confirmRequired')
+    return
+  }
+  const validationError = validateOrcidForSave()
+  if (validationError) {
+    errorMsg.value = validationError
+    return
+  }
+  try {
+    orcidSaving.value = true
+    await authorProfile.saveProfile({
+      orcid: orcidForm.orcid,
+      confirm_authorship: orcidForm.confirm_authorship,
+    })
+    successMsg.value = t('profile.orcid.updated')
+  } catch (e: any) {
+    errorMsg.value = getOrcidErrorMessage(e)
+  } finally {
+    orcidSaving.value = false
+  }
+}
+
+async function removeOrcidProfile() {
+  successMsg.value = ''
+  errorMsg.value = ''
+  try {
+    orcidSaving.value = true
+    await authorProfile.removeProfile()
+    resetOrcidFormFromProfile()
+    successMsg.value = t('profile.orcid.removed')
+  } catch (e: any) {
+    errorMsg.value = e?.message || t('profile.orcid.removeFailed')
+  } finally {
+    orcidSaving.value = false
   }
 }
 
@@ -184,6 +328,11 @@ onMounted(async () => {
   if (auth.isAuthenticated && !auth.User) {
     try {
       await auth.authenticate()
+    } catch {}
+  }
+  if (auth.isAuthenticated) {
+    try {
+      await authorProfile.loadProfile()
     } catch {}
   }
 })
@@ -407,6 +556,63 @@ onBeforeUnmount(() => {
                 :placeholder="t('profile.form.keepBlank')"
               />
             </label>
+          </section>
+
+          <section class="orcid-panel">
+            <div class="orcid-panel__header">
+              <div>
+                <h2>{{ t('profile.orcid.title') }}</h2>
+                <p>{{ t('profile.orcid.description') }}</p>
+              </div>
+              <strong :class="{ ok: authorProfile.profile?.confirmed }">
+                {{ orcidStatus }}
+              </strong>
+            </div>
+
+            <div class="settings-form settings-form--compact">
+              <label class="settings-field settings-field--wide">
+                <span>{{ t('profile.orcid.field') }}</span>
+                <input
+                  v-model="orcidForm.orcid"
+                  type="text"
+                  inputmode="text"
+                  autocomplete="off"
+                  placeholder="0000-0000-0000-000X"
+                  @input="handleOrcidInput"
+                />
+              </label>
+              <label class="settings-checkbox settings-field--wide">
+                <input v-model="orcidForm.confirm_authorship" type="checkbox" />
+                <span>{{ t('profile.orcid.confirmText') }}</span>
+              </label>
+            </div>
+
+            <div class="orcid-panel__footer">
+              <span v-if="authorProfile.profile?.paper_count">
+                {{ t('profile.orcid.paperCount').replace('{count}', String(authorProfile.profile.paper_count)) }}
+              </span>
+              <span v-else>{{ t('profile.orcid.noPapers') }}</span>
+              <div class="orcid-panel__actions">
+                <button
+                  v-if="authorProfile.profile?.orcid"
+                  type="button"
+                  class="settings-button settings-button--danger"
+                  :disabled="orcidSaving"
+                  @click="removeOrcidProfile"
+                >
+                  {{ t('profile.orcid.unlink') }}
+                </button>
+                <button
+                  v-if="hasOrcidChanges || !authorProfile.profile?.confirmed"
+                  type="button"
+                  class="settings-button settings-button--primary"
+                  :disabled="orcidSaving"
+                  @click="saveOrcidProfile"
+                >
+                  {{ orcidSaving ? t('profile.saving') : t('profile.orcid.save') }}
+                </button>
+              </div>
+            </div>
           </section>
 
           <section class="profile-meta">
@@ -903,6 +1109,11 @@ onBeforeUnmount(() => {
   border-bottom: 1px solid color-mix(in oklab, var(--color-border-soft), transparent 46%);
 }
 
+.settings-form--compact {
+  padding: 14px 0 0;
+  border-bottom: 0;
+}
+
 .settings-field {
   min-width: 0;
   display: grid;
@@ -934,6 +1145,74 @@ onBeforeUnmount(() => {
 .settings-field input:focus {
   border-color: var(--color-primary-secondary);
   outline: none;
+}
+
+.settings-checkbox {
+  display: flex;
+  grid-column: 1 / -1;
+  align-items: flex-start;
+  gap: 10px;
+  color: var(--color-muted);
+  font-size: 0.9rem;
+  line-height: 1.45;
+}
+
+.settings-checkbox input {
+  width: 18px;
+  height: 18px;
+  flex: 0 0 auto;
+  margin-top: 2px;
+  accent-color: var(--color-primary-secondary);
+}
+
+.orcid-panel {
+  display: grid;
+  gap: 10px;
+  padding: 20px 0;
+  border-bottom: 1px solid color-mix(in oklab, var(--color-border-soft), transparent 46%);
+}
+
+.orcid-panel__header,
+.orcid-panel__footer,
+.orcid-panel__actions {
+  min-width: 0;
+  display: flex;
+  align-items: center;
+  gap: 14px;
+}
+
+.orcid-panel__header,
+.orcid-panel__footer {
+  justify-content: space-between;
+}
+
+.orcid-panel h2 {
+  margin: 0;
+  color: var(--color-text);
+  font-size: 1rem;
+}
+
+.orcid-panel p,
+.orcid-panel__footer {
+  margin: 6px 0 0;
+  color: var(--color-muted);
+  font-size: 0.9rem;
+  line-height: 1.45;
+}
+
+.orcid-panel strong {
+  flex: 0 0 auto;
+  color: var(--color-muted);
+  font-size: 0.85rem;
+}
+
+.orcid-panel strong.ok {
+  color: var(--color-success);
+}
+
+.orcid-panel__actions {
+  justify-content: flex-end;
+  flex-wrap: wrap;
 }
 
 .profile-meta {
@@ -1043,6 +1322,16 @@ onBeforeUnmount(() => {
 
   .settings-control,
   .settings-actions {
+    justify-content: flex-start;
+  }
+
+  .orcid-panel__header,
+  .orcid-panel__footer {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+
+  .orcid-panel__actions {
     justify-content: flex-start;
   }
 

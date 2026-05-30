@@ -144,6 +144,26 @@ class SemanticServiceStub(object):
                 request_serializer=service__pb2.ModerateSubmissionRequest.SerializeToString,
                 response_deserializer=service__pb2.SubmissionResponse.FromString,
                 _registered_method=True)
+        self.GetMyAuthorProfile = channel.unary_unary(
+                '/semantic.SemanticService/GetMyAuthorProfile',
+                request_serializer=service__pb2.AuthorProfileRequest.SerializeToString,
+                response_deserializer=service__pb2.AuthorProfileResponse.FromString,
+                _registered_method=True)
+        self.UpsertMyAuthorProfile = channel.unary_unary(
+                '/semantic.SemanticService/UpsertMyAuthorProfile',
+                request_serializer=service__pb2.AuthorProfileUpdateRequest.SerializeToString,
+                response_deserializer=service__pb2.AuthorProfileResponse.FromString,
+                _registered_method=True)
+        self.DeleteMyAuthorProfile = channel.unary_unary(
+                '/semantic.SemanticService/DeleteMyAuthorProfile',
+                request_serializer=service__pb2.AuthorProfileRequest.SerializeToString,
+                response_deserializer=service__pb2.ErrorResponse.FromString,
+                _registered_method=True)
+        self.ListMyAuthorPapers = channel.unary_unary(
+                '/semantic.SemanticService/ListMyAuthorPapers',
+                request_serializer=service__pb2.AuthorProfileRequest.SerializeToString,
+                response_deserializer=service__pb2.PapersResponse.FromString,
+                _registered_method=True)
 
 
 class SemanticServiceServicer(object):
@@ -289,6 +309,30 @@ class SemanticServiceServicer(object):
         context.set_details('Method not implemented!')
         raise NotImplementedError('Method not implemented!')
 
+    def GetMyAuthorProfile(self, request, context):
+        """Missing associated documentation comment in .proto file."""
+        context.set_code(grpc.StatusCode.UNIMPLEMENTED)
+        context.set_details('Method not implemented!')
+        raise NotImplementedError('Method not implemented!')
+
+    def UpsertMyAuthorProfile(self, request, context):
+        """Missing associated documentation comment in .proto file."""
+        context.set_code(grpc.StatusCode.UNIMPLEMENTED)
+        context.set_details('Method not implemented!')
+        raise NotImplementedError('Method not implemented!')
+
+    def DeleteMyAuthorProfile(self, request, context):
+        """Missing associated documentation comment in .proto file."""
+        context.set_code(grpc.StatusCode.UNIMPLEMENTED)
+        context.set_details('Method not implemented!')
+        raise NotImplementedError('Method not implemented!')
+
+    def ListMyAuthorPapers(self, request, context):
+        """Missing associated documentation comment in .proto file."""
+        context.set_code(grpc.StatusCode.UNIMPLEMENTED)
+        context.set_details('Method not implemented!')
+        raise NotImplementedError('Method not implemented!')
+
 
 def add_SemanticServiceServicer_to_server(servicer, server):
     rpc_method_handlers = {
@@ -401,6 +445,26 @@ def add_SemanticServiceServicer_to_server(servicer, server):
                     servicer.ModerateSubmission,
                     request_deserializer=service__pb2.ModerateSubmissionRequest.FromString,
                     response_serializer=service__pb2.SubmissionResponse.SerializeToString,
+            ),
+            'GetMyAuthorProfile': grpc.unary_unary_rpc_method_handler(
+                    servicer.GetMyAuthorProfile,
+                    request_deserializer=service__pb2.AuthorProfileRequest.FromString,
+                    response_serializer=service__pb2.AuthorProfileResponse.SerializeToString,
+            ),
+            'UpsertMyAuthorProfile': grpc.unary_unary_rpc_method_handler(
+                    servicer.UpsertMyAuthorProfile,
+                    request_deserializer=service__pb2.AuthorProfileUpdateRequest.FromString,
+                    response_serializer=service__pb2.AuthorProfileResponse.SerializeToString,
+            ),
+            'DeleteMyAuthorProfile': grpc.unary_unary_rpc_method_handler(
+                    servicer.DeleteMyAuthorProfile,
+                    request_deserializer=service__pb2.AuthorProfileRequest.FromString,
+                    response_serializer=service__pb2.ErrorResponse.SerializeToString,
+            ),
+            'ListMyAuthorPapers': grpc.unary_unary_rpc_method_handler(
+                    servicer.ListMyAuthorPapers,
+                    request_deserializer=service__pb2.AuthorProfileRequest.FromString,
+                    response_serializer=service__pb2.PapersResponse.SerializeToString,
             ),
     }
     generic_handler = grpc.method_handlers_generic_handler(
@@ -997,6 +1061,114 @@ class SemanticService(object):
             '/semantic.SemanticService/ModerateSubmission',
             service__pb2.ModerateSubmissionRequest.SerializeToString,
             service__pb2.SubmissionResponse.FromString,
+            options,
+            channel_credentials,
+            insecure,
+            call_credentials,
+            compression,
+            wait_for_ready,
+            timeout,
+            metadata,
+            _registered_method=True)
+
+    @staticmethod
+    def GetMyAuthorProfile(request,
+            target,
+            options=(),
+            channel_credentials=None,
+            call_credentials=None,
+            insecure=False,
+            compression=None,
+            wait_for_ready=None,
+            timeout=None,
+            metadata=None):
+        return grpc.experimental.unary_unary(
+            request,
+            target,
+            '/semantic.SemanticService/GetMyAuthorProfile',
+            service__pb2.AuthorProfileRequest.SerializeToString,
+            service__pb2.AuthorProfileResponse.FromString,
+            options,
+            channel_credentials,
+            insecure,
+            call_credentials,
+            compression,
+            wait_for_ready,
+            timeout,
+            metadata,
+            _registered_method=True)
+
+    @staticmethod
+    def UpsertMyAuthorProfile(request,
+            target,
+            options=(),
+            channel_credentials=None,
+            call_credentials=None,
+            insecure=False,
+            compression=None,
+            wait_for_ready=None,
+            timeout=None,
+            metadata=None):
+        return grpc.experimental.unary_unary(
+            request,
+            target,
+            '/semantic.SemanticService/UpsertMyAuthorProfile',
+            service__pb2.AuthorProfileUpdateRequest.SerializeToString,
+            service__pb2.AuthorProfileResponse.FromString,
+            options,
+            channel_credentials,
+            insecure,
+            call_credentials,
+            compression,
+            wait_for_ready,
+            timeout,
+            metadata,
+            _registered_method=True)
+
+    @staticmethod
+    def DeleteMyAuthorProfile(request,
+            target,
+            options=(),
+            channel_credentials=None,
+            call_credentials=None,
+            insecure=False,
+            compression=None,
+            wait_for_ready=None,
+            timeout=None,
+            metadata=None):
+        return grpc.experimental.unary_unary(
+            request,
+            target,
+            '/semantic.SemanticService/DeleteMyAuthorProfile',
+            service__pb2.AuthorProfileRequest.SerializeToString,
+            service__pb2.ErrorResponse.FromString,
+            options,
+            channel_credentials,
+            insecure,
+            call_credentials,
+            compression,
+            wait_for_ready,
+            timeout,
+            metadata,
+            _registered_method=True)
+
+    @staticmethod
+    def ListMyAuthorPapers(request,
+            target,
+            options=(),
+            channel_credentials=None,
+            call_credentials=None,
+            insecure=False,
+            compression=None,
+            wait_for_ready=None,
+            timeout=None,
+            metadata=None):
+        return grpc.experimental.unary_unary(
+            request,
+            target,
+            '/semantic.SemanticService/ListMyAuthorPapers',
+            service__pb2.AuthorProfileRequest.SerializeToString,
+            service__pb2.PapersResponse.FromString,
             options,
             channel_credentials,
             insecure,

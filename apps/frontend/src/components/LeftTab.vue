@@ -1,15 +1,17 @@
 <script lang="ts" setup>
-import { computed, ref } from 'vue'
+import { computed, onMounted, ref, watch } from 'vue'
 import { useRouter } from 'vue-router'
 import { useSettingStore } from '@/stores/settingStore'
 import { useChatStore } from '@/stores/chatStore'
 import { storeToRefs } from 'pinia'
 import { useAuthStore } from '@/stores/authStore'
+import { useAuthorProfileStore } from '@/stores/authorProfileStore'
 import { useI18n } from '@/i18n'
 import ChatHistory from '@/components/ChatHistory.vue'
 import SettingsView from '@/views/SettingsView.vue'
 import { useSettingsModalStore } from '@/stores/settingsModalStore'
 const authStore = useAuthStore()
+const authorProfile = useAuthorProfileStore()
 const { t } = useI18n()
 const router = useRouter()
 const settingStore = useSettingStore()
@@ -19,7 +21,9 @@ const { IsMobileLayout, LeftTabHidden, MobileSidebarOpen } = storeToRefs(setting
 const leftTabHidden = LeftTabHidden
 const isMobileLayout = IsMobileLayout
 const mobileSidebarOpen = MobileSidebarOpen
-const canAuthorAccess = computed(() => authStore.canAuthorAccess)
+const canAuthorAccess = computed(
+  () => authStore.isAuthenticated && (authStore.canAuthorAccess || authorProfile.hasConfirmedOrcid),
+)
 const historyCancelToken = ref(0)
 const showSidebarText = computed(() => isMobileLayout.value || !leftTabHidden.value)
 function toggleLeftTab() {
@@ -55,6 +59,24 @@ function handleNewSearch() {
   router.push('/')
   closeMobileSidebar()
 }
+
+async function loadAuthorProfileAccess() {
+  if (!authStore.isAuthenticated) return
+  try {
+    await authorProfile.loadProfile()
+  } catch {}
+}
+
+onMounted(() => {
+  void loadAuthorProfileAccess()
+})
+
+watch(
+  () => authStore.isAuthenticated,
+  (isAuthenticated) => {
+    if (isAuthenticated) void loadAuthorProfileAccess()
+  },
+)
 
 defineProps<{
   hidden?: boolean

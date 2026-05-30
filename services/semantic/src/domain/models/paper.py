@@ -12,12 +12,14 @@ class PaperModel:
         Authors=None,
         Institutions=None,
         Identifiers=None,
+        State=None,
     ):
         self.ID = ID
         self.Title = Title
         self.Abstract = Abstract
         self.Year = Year
         self.Best_oa_location = Best_oa_location
+        self.State = State
         self.Referenced_works = list(Referenced_works or [])
         self.Related_works = list(Related_works or [])
         self.Cited_by_count = Cited_by_count

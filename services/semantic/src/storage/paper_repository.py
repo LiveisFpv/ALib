@@ -37,7 +37,8 @@ class PaperRepository:
                            p.paper_id,
                            p.title,
                            p.abstract,
-                           p.year
+                           p.year,
+                           p.state
                     FROM input i
                     JOIN papers p ON p.paper_id = i.id
                 ),

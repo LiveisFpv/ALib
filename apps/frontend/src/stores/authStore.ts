@@ -1,6 +1,7 @@
 import { ref, computed, watch } from 'vue'
 import { defineStore } from 'pinia'
 import { SSOApi } from '@/api/useSSOApi'
+import { useAuthorProfileStore } from '@/stores/authorProfileStore'
 import type {
   UserLoginRequest,
   UserRegisterRequest,
@@ -37,6 +38,9 @@ export const useAuthStore = defineStore('auth', () => {
   function clearSession() {
     AccessToken.value = null
     User.value = null
+    try {
+      useAuthorProfileStore().reset()
+    } catch {}
   }
 
   async function authenticate() {

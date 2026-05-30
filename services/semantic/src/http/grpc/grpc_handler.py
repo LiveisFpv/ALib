@@ -17,6 +17,11 @@ from src.http.grpc.auth import (
     extract_auth_context,
 )
 from src.lib.logger import Logger
+from src.services.author_profile_service import (
+    AuthorProfileConflictError,
+    AuthorProfileService,
+    AuthorProfileValidationError,
+)
 from src.services.chat_service import ChatService
 from src.services.ingestion.ingestion_service import IngestionService
 from src.services.search.search_service import SearchService
@@ -39,6 +44,7 @@ class SemanticServiceHandlerGrpc(service_pb2_grpc.SemanticServiceServicer):
         logger: Logger,
         ingestion_service: IngestionService | None = None,
         submission_service: SubmissionService | None = None,
+        author_profile_service: AuthorProfileService | None = None,
     ):
         self.logger = logger
         self.search_service = search_service
@@ -46,6 +52,7 @@ class SemanticServiceHandlerGrpc(service_pb2_grpc.SemanticServiceServicer):
         self.chat_service = chat_service
         self.ingestion_service = ingestion_service
         self.submission_service = submission_service
+        self.author_profile_service = author_profile_service
 
     def SearchPaper(self, request: service_pb2.SearchRequest, context: grpc.ServicerContext) -> service_pb2.ChatMessage:
         self.logger.info(f"SearchPaper request: {request.Input_data}")
@@ -333,6 +340,81 @@ class SemanticServiceHandlerGrpc(service_pb2_grpc.SemanticServiceServicer):
                 log_message="ModerateSubmission failed",
             )
 
+    def GetMyAuthorProfile(
+        self,
+        request: service_pb2.AuthorProfileRequest,
+        context: grpc.ServicerContext,
+    ) -> service_pb2.AuthorProfileResponse:
+        try:
+            auth = self._require_auth(context)
+            profile = self._require_author_profile_service().get_my_profile(user_id=auth.user_id)
+            return self._author_profile_to_proto(profile)
+        except Exception as exc:
+            return self._handle_author_profile_exception(
+                context,
+                exc,
+                empty_response=service_pb2.AuthorProfileResponse(),
+                log_message="GetMyAuthorProfile failed",
+            )
+
+    def UpsertMyAuthorProfile(
+        self,
+        request: service_pb2.AuthorProfileUpdateRequest,
+        context: grpc.ServicerContext,
+    ) -> service_pb2.AuthorProfileResponse:
+        try:
+            auth = self._require_auth(context)
+            profile = self._require_author_profile_service().update_my_profile(
+                user_id=auth.user_id,
+                orcid=request.Orcid,
+                confirm_authorship=bool(request.Confirm_authorship),
+            )
+            return self._author_profile_to_proto(profile)
+        except Exception as exc:
+            return self._handle_author_profile_exception(
+                context,
+                exc,
+                empty_response=service_pb2.AuthorProfileResponse(),
+                log_message="UpsertMyAuthorProfile failed",
+            )
+
+    def DeleteMyAuthorProfile(
+        self,
+        request: service_pb2.AuthorProfileRequest,
+        context: grpc.ServicerContext,
+    ) -> service_pb2.ErrorResponse:
+        try:
+            auth = self._require_auth(context)
+            self._require_author_profile_service().delete_my_profile(user_id=auth.user_id)
+            return service_pb2.ErrorResponse()
+        except Exception as exc:
+            return self._handle_author_profile_exception(
+                context,
+                exc,
+                empty_response=service_pb2.ErrorResponse(),
+                log_message="DeleteMyAuthorProfile failed",
+            )
+
+    def ListMyAuthorPapers(
+        self,
+        request: service_pb2.AuthorProfileRequest,
+        context: grpc.ServicerContext,
+    ) -> service_pb2.PapersResponse:
+        try:
+            auth = self._require_auth(context)
+            papers = self._require_author_profile_service().list_my_catalog_papers(user_id=auth.user_id)
+            response = service_pb2.PapersResponse()
+            for paper in papers:
+                response.Papers.append(self._paper_to_proto(paper))
+            return response
+        except Exception as exc:
+            return self._handle_author_profile_exception(
+                context,
+                exc,
+                empty_response=service_pb2.PapersResponse(),
+                log_message="ListMyAuthorPapers failed",
+            )
+
     def CreateNewChat(self, request: service_pb2.Chat, context: grpc.ServicerContext) -> service_pb2.ChatResp:
         self.logger.info(f"CreateNewChat request: user_id={request.User_id}")
         try:
@@ -437,6 +519,11 @@ class SemanticServiceHandlerGrpc(service_pb2_grpc.SemanticServiceServicer):
             raise RuntimeError("submission service is not configured")
         return self.submission_service
 
+    def _require_author_profile_service(self) -> AuthorProfileService:
+        if self.author_profile_service is None:
+            raise RuntimeError("author profile service is not configured")
+        return self.author_profile_service
+
     def _handle_submission_exception(self, context: grpc.ServicerContext, exc: Exception, *, empty_response, log_message: str):
         if isinstance(exc, AuthenticationError):
             code = grpc.StatusCode.UNAUTHENTICATED
@@ -449,6 +536,24 @@ class SemanticServiceHandlerGrpc(service_pb2_grpc.SemanticServiceServicer):
         elif isinstance(exc, SubmissionStateError):
             code = grpc.StatusCode.FAILED_PRECONDITION
         elif isinstance(exc, RuntimeError) and str(exc) == "submission service is not configured":
+            code = grpc.StatusCode.UNIMPLEMENTED
+        else:
+            code = grpc.StatusCode.INTERNAL
+        self.logger.error(log_message, error=str(exc))
+        context.set_code(code)
+        context.set_details(str(exc))
+        return empty_response
+
+    def _handle_author_profile_exception(self, context: grpc.ServicerContext, exc: Exception, *, empty_response, log_message: str):
+        if isinstance(exc, AuthenticationError):
+            code = grpc.StatusCode.UNAUTHENTICATED
+        elif isinstance(exc, AuthorizationError):
+            code = grpc.StatusCode.PERMISSION_DENIED
+        elif isinstance(exc, AuthorProfileValidationError):
+            code = grpc.StatusCode.INVALID_ARGUMENT
+        elif isinstance(exc, AuthorProfileConflictError):
+            code = grpc.StatusCode.ALREADY_EXISTS
+        elif isinstance(exc, RuntimeError) and str(exc) == "author profile service is not configured":
             code = grpc.StatusCode.UNIMPLEMENTED
         else:
             code = grpc.StatusCode.INTERNAL
@@ -520,6 +625,7 @@ class SemanticServiceHandlerGrpc(service_pb2_grpc.SemanticServiceServicer):
             Abstract=cls._to_str(paper.Abstract),
             Year=cls._to_int(paper.Year),
             Best_oa_location=cls._to_str(paper.Best_oa_location),
+            State=cls._to_str(getattr(paper, "State", "")),
             Referenced_works=[cls._to_str(item) for item in getattr(paper, "Referenced_works", [])],
             Related_works=[cls._to_str(item) for item in getattr(paper, "Related_works", [])],
             Cited_by_count=cls._to_int(getattr(paper, "Cited_by_count", 0)),
@@ -543,6 +649,18 @@ class SemanticServiceHandlerGrpc(service_pb2_grpc.SemanticServiceServicer):
             Institutions=[cls._to_str(item) for item in getattr(paper.paper, "Institutions", [])],
             Identifiers=cls._paper_identifiers_to_proto(getattr(paper.paper, "Identifiers", [])),
             Score=cls._to_float(paper.score)
+        )
+
+    @classmethod
+    def _author_profile_to_proto(cls, profile) -> service_pb2.AuthorProfileResponse:
+        confirmed_at = ""
+        if getattr(profile, "confirmed_at", None) is not None:
+            confirmed_at = cls._to_str(profile.confirmed_at)
+        return service_pb2.AuthorProfileResponse(
+            Orcid=cls._to_str(getattr(profile, "orcid", "")),
+            Confirmed=bool(getattr(profile, "confirmed", False)),
+            Confirmed_at=confirmed_at,
+            Paper_count=cls._to_int(getattr(profile, "paper_count", 0)),
         )
 
     @classmethod

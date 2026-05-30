@@ -491,7 +491,7 @@ async function handleDelete(id: string) {
       <section v-else-if="visiblePapers.length" class="paper-workflow-list" aria-label="Papers">
         <article
           v-for="item in visiblePapers"
-          :key="item.paper.id"
+          :key="`${item.paper.source}-${item.paper.id}`"
           class="paper-workflow-card"
           :class="`paper-workflow-card--${item.status}`"
         >
@@ -569,7 +569,7 @@ async function handleDelete(id: string) {
               {{ t('papers.action.copyLink') }}
             </button> -->
             <button
-              v-if="paperStore.canDelete(item.paper.id)"
+              v-if="paperStore.canDelete(item.paper.id, item.paper.source)"
               class="action-button action-button--danger"
               type="button"
               :disabled="busyId === item.paper.id"

@@ -2505,6 +2505,162 @@ func (x *ModerateSubmissionRequest) GetComment() string {
 	return ""
 }
 
+type AuthorProfileRequest struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *AuthorProfileRequest) Reset() {
+	*x = AuthorProfileRequest{}
+	mi := &file_service_proto_msgTypes[39]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *AuthorProfileRequest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*AuthorProfileRequest) ProtoMessage() {}
+
+func (x *AuthorProfileRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_service_proto_msgTypes[39]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use AuthorProfileRequest.ProtoReflect.Descriptor instead.
+func (*AuthorProfileRequest) Descriptor() ([]byte, []int) {
+	return file_service_proto_rawDescGZIP(), []int{39}
+}
+
+type AuthorProfileUpdateRequest struct {
+	state             protoimpl.MessageState `protogen:"open.v1"`
+	Orcid             string                 `protobuf:"bytes,1,opt,name=Orcid,proto3" json:"Orcid,omitempty"`
+	ConfirmAuthorship bool                   `protobuf:"varint,2,opt,name=Confirm_authorship,json=ConfirmAuthorship,proto3" json:"Confirm_authorship,omitempty"`
+	unknownFields     protoimpl.UnknownFields
+	sizeCache         protoimpl.SizeCache
+}
+
+func (x *AuthorProfileUpdateRequest) Reset() {
+	*x = AuthorProfileUpdateRequest{}
+	mi := &file_service_proto_msgTypes[40]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *AuthorProfileUpdateRequest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*AuthorProfileUpdateRequest) ProtoMessage() {}
+
+func (x *AuthorProfileUpdateRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_service_proto_msgTypes[40]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use AuthorProfileUpdateRequest.ProtoReflect.Descriptor instead.
+func (*AuthorProfileUpdateRequest) Descriptor() ([]byte, []int) {
+	return file_service_proto_rawDescGZIP(), []int{40}
+}
+
+func (x *AuthorProfileUpdateRequest) GetOrcid() string {
+	if x != nil {
+		return x.Orcid
+	}
+	return ""
+}
+
+func (x *AuthorProfileUpdateRequest) GetConfirmAuthorship() bool {
+	if x != nil {
+		return x.ConfirmAuthorship
+	}
+	return false
+}
+
+type AuthorProfileResponse struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	Orcid         string                 `protobuf:"bytes,1,opt,name=Orcid,proto3" json:"Orcid,omitempty"`
+	Confirmed     bool                   `protobuf:"varint,2,opt,name=Confirmed,proto3" json:"Confirmed,omitempty"`
+	ConfirmedAt   string                 `protobuf:"bytes,3,opt,name=Confirmed_at,json=ConfirmedAt,proto3" json:"Confirmed_at,omitempty"`
+	PaperCount    int64                  `protobuf:"varint,4,opt,name=Paper_count,json=PaperCount,proto3" json:"Paper_count,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *AuthorProfileResponse) Reset() {
+	*x = AuthorProfileResponse{}
+	mi := &file_service_proto_msgTypes[41]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *AuthorProfileResponse) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*AuthorProfileResponse) ProtoMessage() {}
+
+func (x *AuthorProfileResponse) ProtoReflect() protoreflect.Message {
+	mi := &file_service_proto_msgTypes[41]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use AuthorProfileResponse.ProtoReflect.Descriptor instead.
+func (*AuthorProfileResponse) Descriptor() ([]byte, []int) {
+	return file_service_proto_rawDescGZIP(), []int{41}
+}
+
+func (x *AuthorProfileResponse) GetOrcid() string {
+	if x != nil {
+		return x.Orcid
+	}
+	return ""
+}
+
+func (x *AuthorProfileResponse) GetConfirmed() bool {
+	if x != nil {
+		return x.Confirmed
+	}
+	return false
+}
+
+func (x *AuthorProfileResponse) GetConfirmedAt() string {
+	if x != nil {
+		return x.ConfirmedAt
+	}
+	return ""
+}
+
+func (x *AuthorProfileResponse) GetPaperCount() int64 {
+	if x != nil {
+		return x.PaperCount
+	}
+	return 0
+}
+
 var File_service_proto protoreflect.FileDescriptor
 
 const file_service_proto_rawDesc = "" +
@@ -2697,7 +2853,17 @@ const file_service_proto_rawDesc = "" +
 	"\x19ModerateSubmissionRequest\x12#\n" +
 	"\rSubmission_id\x18\x01 \x01(\x03R\fSubmissionId\x12\x16\n" +
 	"\x06Action\x18\x02 \x01(\tR\x06Action\x12\x18\n" +
-	"\aComment\x18\x03 \x01(\tR\aComment2\x8c\r\n" +
+	"\aComment\x18\x03 \x01(\tR\aComment\"\x16\n" +
+	"\x14AuthorProfileRequest\"a\n" +
+	"\x1aAuthorProfileUpdateRequest\x12\x14\n" +
+	"\x05Orcid\x18\x01 \x01(\tR\x05Orcid\x12-\n" +
+	"\x12Confirm_authorship\x18\x02 \x01(\bR\x11ConfirmAuthorship\"\x8f\x01\n" +
+	"\x15AuthorProfileResponse\x12\x14\n" +
+	"\x05Orcid\x18\x01 \x01(\tR\x05Orcid\x12\x1c\n" +
+	"\tConfirmed\x18\x02 \x01(\bR\tConfirmed\x12!\n" +
+	"\fConfirmed_at\x18\x03 \x01(\tR\vConfirmedAt\x12\x1f\n" +
+	"\vPaper_count\x18\x04 \x01(\x03R\n" +
+	"PaperCount2\xe5\x0f\n" +
 	"\x0fSemanticService\x12G\n" +
 	"\x0fGetInstitutions\x12\x18.semantic.InstitutionReq\x1a\x1a.semantic.InstitutionsResp\x12@\n" +
 	"\x0eAddInstitution\x12\x15.semantic.Institution\x1a\x17.semantic.ErrorResponse\x128\n" +
@@ -2723,7 +2889,11 @@ const file_service_proto_rawDesc = "" +
 	"\x13ListModerationQueue\x12$.semantic.ListModerationQueueRequest\x1a .semantic.SubmissionListResponse\x12a\n" +
 	"\x17GetModerationSubmission\x12(.semantic.GetModerationSubmissionRequest\x1a\x1c.semantic.SubmissionResponse\x12g\n" +
 	"\x1aUpdateModerationSubmission\x12+.semantic.UpdateModerationSubmissionRequest\x1a\x1c.semantic.SubmissionResponse\x12W\n" +
-	"\x12ModerateSubmission\x12#.semantic.ModerateSubmissionRequest\x1a\x1c.semantic.SubmissionResponseB5Z3github.com/Live/VKR_gateway_service/gen/go/semanticb\x06proto3"
+	"\x12ModerateSubmission\x12#.semantic.ModerateSubmissionRequest\x1a\x1c.semantic.SubmissionResponse\x12U\n" +
+	"\x12GetMyAuthorProfile\x12\x1e.semantic.AuthorProfileRequest\x1a\x1f.semantic.AuthorProfileResponse\x12^\n" +
+	"\x15UpsertMyAuthorProfile\x12$.semantic.AuthorProfileUpdateRequest\x1a\x1f.semantic.AuthorProfileResponse\x12P\n" +
+	"\x15DeleteMyAuthorProfile\x12\x1e.semantic.AuthorProfileRequest\x1a\x17.semantic.ErrorResponse\x12N\n" +
+	"\x12ListMyAuthorPapers\x12\x1e.semantic.AuthorProfileRequest\x1a\x18.semantic.PapersResponseB5Z3github.com/Live/VKR_gateway_service/gen/go/semanticb\x06proto3"
 
 var (
 	file_service_proto_rawDescOnce sync.Once
@@ -2737,7 +2907,7 @@ func file_service_proto_rawDescGZIP() []byte {
 	return file_service_proto_rawDescData
 }
 
-var file_service_proto_msgTypes = make([]protoimpl.MessageInfo, 39)
+var file_service_proto_msgTypes = make([]protoimpl.MessageInfo, 42)
 var file_service_proto_goTypes = []any{
 	(*InstitutionReq)(nil),                    // 0: semantic.InstitutionReq
 	(*InstitutionsResp)(nil),                  // 1: semantic.InstitutionsResp
@@ -2778,6 +2948,9 @@ var file_service_proto_goTypes = []any{
 	(*GetModerationSubmissionRequest)(nil),    // 36: semantic.GetModerationSubmissionRequest
 	(*UpdateModerationSubmissionRequest)(nil), // 37: semantic.UpdateModerationSubmissionRequest
 	(*ModerateSubmissionRequest)(nil),         // 38: semantic.ModerateSubmissionRequest
+	(*AuthorProfileRequest)(nil),              // 39: semantic.AuthorProfileRequest
+	(*AuthorProfileUpdateRequest)(nil),        // 40: semantic.AuthorProfileUpdateRequest
+	(*AuthorProfileResponse)(nil),             // 41: semantic.AuthorProfileResponse
 }
 var file_service_proto_depIdxs = []int32{
 	2,  // 0: semantic.InstitutionsResp.Institutions:type_name -> semantic.Institution
@@ -2816,30 +2989,38 @@ var file_service_proto_depIdxs = []int32{
 	36, // 33: semantic.SemanticService.GetModerationSubmission:input_type -> semantic.GetModerationSubmissionRequest
 	37, // 34: semantic.SemanticService.UpdateModerationSubmission:input_type -> semantic.UpdateModerationSubmissionRequest
 	38, // 35: semantic.SemanticService.ModerateSubmission:input_type -> semantic.ModerateSubmissionRequest
-	1,  // 36: semantic.SemanticService.GetInstitutions:output_type -> semantic.InstitutionsResp
-	25, // 37: semantic.SemanticService.AddInstitution:output_type -> semantic.ErrorResponse
-	4,  // 38: semantic.SemanticService.GetAuthors:output_type -> semantic.AuthorsResp
-	25, // 39: semantic.SemanticService.AddAuthor:output_type -> semantic.ErrorResponse
-	7,  // 40: semantic.SemanticService.GetChatHistory:output_type -> semantic.HistoryResp
-	14, // 41: semantic.SemanticService.CreateNewChat:output_type -> semantic.ChatResp
-	14, // 42: semantic.SemanticService.UpdateChat:output_type -> semantic.ChatResp
-	25, // 43: semantic.SemanticService.DeleteChat:output_type -> semantic.ErrorResponse
-	13, // 44: semantic.SemanticService.GetUserChats:output_type -> semantic.ChatsResp
-	19, // 45: semantic.SemanticService.GetAuthorPapers:output_type -> semantic.PapersResponse
-	8,  // 46: semantic.SemanticService.SearchPaper:output_type -> semantic.ChatMessage
-	17, // 47: semantic.SemanticService.AddPaper:output_type -> semantic.PaperResponse
-	27, // 48: semantic.SemanticService.CreateMySubmission:output_type -> semantic.SubmissionResponse
-	27, // 49: semantic.SemanticService.UpdateMySubmission:output_type -> semantic.SubmissionResponse
-	25, // 50: semantic.SemanticService.DeleteMySubmission:output_type -> semantic.ErrorResponse
-	27, // 51: semantic.SemanticService.GetMySubmission:output_type -> semantic.SubmissionResponse
-	28, // 52: semantic.SemanticService.ListMySubmissions:output_type -> semantic.SubmissionListResponse
-	27, // 53: semantic.SemanticService.SubmitMySubmission:output_type -> semantic.SubmissionResponse
-	28, // 54: semantic.SemanticService.ListModerationQueue:output_type -> semantic.SubmissionListResponse
-	27, // 55: semantic.SemanticService.GetModerationSubmission:output_type -> semantic.SubmissionResponse
-	27, // 56: semantic.SemanticService.UpdateModerationSubmission:output_type -> semantic.SubmissionResponse
-	27, // 57: semantic.SemanticService.ModerateSubmission:output_type -> semantic.SubmissionResponse
-	36, // [36:58] is the sub-list for method output_type
-	14, // [14:36] is the sub-list for method input_type
+	39, // 36: semantic.SemanticService.GetMyAuthorProfile:input_type -> semantic.AuthorProfileRequest
+	40, // 37: semantic.SemanticService.UpsertMyAuthorProfile:input_type -> semantic.AuthorProfileUpdateRequest
+	39, // 38: semantic.SemanticService.DeleteMyAuthorProfile:input_type -> semantic.AuthorProfileRequest
+	39, // 39: semantic.SemanticService.ListMyAuthorPapers:input_type -> semantic.AuthorProfileRequest
+	1,  // 40: semantic.SemanticService.GetInstitutions:output_type -> semantic.InstitutionsResp
+	25, // 41: semantic.SemanticService.AddInstitution:output_type -> semantic.ErrorResponse
+	4,  // 42: semantic.SemanticService.GetAuthors:output_type -> semantic.AuthorsResp
+	25, // 43: semantic.SemanticService.AddAuthor:output_type -> semantic.ErrorResponse
+	7,  // 44: semantic.SemanticService.GetChatHistory:output_type -> semantic.HistoryResp
+	14, // 45: semantic.SemanticService.CreateNewChat:output_type -> semantic.ChatResp
+	14, // 46: semantic.SemanticService.UpdateChat:output_type -> semantic.ChatResp
+	25, // 47: semantic.SemanticService.DeleteChat:output_type -> semantic.ErrorResponse
+	13, // 48: semantic.SemanticService.GetUserChats:output_type -> semantic.ChatsResp
+	19, // 49: semantic.SemanticService.GetAuthorPapers:output_type -> semantic.PapersResponse
+	8,  // 50: semantic.SemanticService.SearchPaper:output_type -> semantic.ChatMessage
+	17, // 51: semantic.SemanticService.AddPaper:output_type -> semantic.PaperResponse
+	27, // 52: semantic.SemanticService.CreateMySubmission:output_type -> semantic.SubmissionResponse
+	27, // 53: semantic.SemanticService.UpdateMySubmission:output_type -> semantic.SubmissionResponse
+	25, // 54: semantic.SemanticService.DeleteMySubmission:output_type -> semantic.ErrorResponse
+	27, // 55: semantic.SemanticService.GetMySubmission:output_type -> semantic.SubmissionResponse
+	28, // 56: semantic.SemanticService.ListMySubmissions:output_type -> semantic.SubmissionListResponse
+	27, // 57: semantic.SemanticService.SubmitMySubmission:output_type -> semantic.SubmissionResponse
+	28, // 58: semantic.SemanticService.ListModerationQueue:output_type -> semantic.SubmissionListResponse
+	27, // 59: semantic.SemanticService.GetModerationSubmission:output_type -> semantic.SubmissionResponse
+	27, // 60: semantic.SemanticService.UpdateModerationSubmission:output_type -> semantic.SubmissionResponse
+	27, // 61: semantic.SemanticService.ModerateSubmission:output_type -> semantic.SubmissionResponse
+	41, // 62: semantic.SemanticService.GetMyAuthorProfile:output_type -> semantic.AuthorProfileResponse
+	41, // 63: semantic.SemanticService.UpsertMyAuthorProfile:output_type -> semantic.AuthorProfileResponse
+	25, // 64: semantic.SemanticService.DeleteMyAuthorProfile:output_type -> semantic.ErrorResponse
+	19, // 65: semantic.SemanticService.ListMyAuthorPapers:output_type -> semantic.PapersResponse
+	40, // [40:66] is the sub-list for method output_type
+	14, // [14:40] is the sub-list for method input_type
 	14, // [14:14] is the sub-list for extension type_name
 	14, // [14:14] is the sub-list for extension extendee
 	0,  // [0:14] is the sub-list for field type_name
@@ -2856,7 +3037,7 @@ func file_service_proto_init() {
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: unsafe.Slice(unsafe.StringData(file_service_proto_rawDesc), len(file_service_proto_rawDesc)),
 			NumEnums:      0,
-			NumMessages:   39,
+			NumMessages:   42,
 			NumExtensions: 0,
 			NumServices:   1,
 		},

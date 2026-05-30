@@ -1,5 +1,6 @@
 import { createRouter, createWebHistory } from 'vue-router'
 import { useAuthStore } from '@/stores/authStore'
+import { useAuthorProfileStore } from '@/stores/authorProfileStore'
 import { setAuthRedirectHandler } from '@/api/base/authRedirect'
 
 const Homeview = () => import('@/views/HomeView.vue')
@@ -21,7 +22,7 @@ const router = createRouter({
       path: '/paper/my',
       name: 'my-papers',
       component: MyPapersView,
-      meta: { requiresAuth: true, roles: ['AUTHOR', 'MODERATOR', 'ADMIN'] },
+      meta: { requiresAuth: true, roles: ['AUTHOR', 'MODERATOR', 'ADMIN'], allowConfirmedOrcid: true },
     },
     {
       path: '/paper/add',
@@ -95,6 +96,13 @@ router.beforeEach(async (to) => {
       .filter(Boolean) as string[]
     const ok = requiredNormalized.some((r) => userRoles.includes(r))
     if (!ok) {
+      if ((to.meta as any)?.allowConfirmedOrcid === true) {
+        const authorProfile = useAuthorProfileStore()
+        try {
+          await authorProfile.loadProfile()
+          if (authorProfile.hasConfirmedOrcid) return true
+        } catch {}
+      }
       if (isAdmin) return { path: '/admin', replace: true }
       if (isModerator) return { path: '/moderator', replace: true }
       return { path: '/', replace: true }

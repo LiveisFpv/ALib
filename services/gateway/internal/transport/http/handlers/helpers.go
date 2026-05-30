@@ -186,6 +186,26 @@ func mapPapers(papers []*domain.ChatPaper) []presenters.ChatPaper {
 	return out
 }
 
+func mapPaper(p *domain.Paper) presenters.Paper {
+	if p == nil {
+		return presenters.Paper{}
+	}
+	return presenters.Paper{
+		Id:               p.Id,
+		Title:            p.Title,
+		Abstract:         p.Abstract,
+		Year:             p.Year,
+		Best_oa_location: p.Best_oa_location,
+		State:            p.State,
+		ReferencedWorks:  cloneStringSlice(p.ReferencedWorks),
+		RelatedWorks:     cloneStringSlice(p.RelatedWorks),
+		CitedByCount:     p.CitedByCount,
+		Authors:          cloneStringSlice(p.Authors),
+		Institutions:     cloneStringSlice(p.Institutions),
+		Identifiers:      mapPaperIdentifiers(p.Identifiers),
+	}
+}
+
 func cloneStringSlice(values []string) []string {
 	return append([]string{}, values...)
 }
