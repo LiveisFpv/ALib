@@ -1,6 +1,7 @@
 import { defineStore } from 'pinia'
 import { computed, ref } from 'vue'
 import { AlibApi } from '@/api/useAlibApi'
+import { normalizeWorkIdentifier, normalizeWorkIdentifierList } from '@/utils/workIdentifier'
 import type {
   PaperResponse,
   SubmissionListQuery,
@@ -122,17 +123,13 @@ function mergeMyPapers(submissions: PaperDetail[], catalog: PaperDetail[]) {
 
 function mapSubmissionInput(payload: PaperPayload): SubmissionUpsertRequest {
   return {
-    source_identifier: payload.source_identifier?.trim() || '',
+    source_identifier: normalizeWorkIdentifier(payload.source_identifier) || '',
     title: payload.title?.trim() || '',
     abstract: payload.abstract?.trim() || '',
     year: payload.year || 0,
     best_oa_location: payload.best_oa_location?.trim() || '',
-    related_works: (payload.related_paper ?? [])
-      .map((item) => item.id.trim())
-      .filter((item) => item.length > 0),
-    referenced_works: (payload.referenced_paper ?? [])
-      .map((item) => item.id.trim())
-      .filter((item) => item.length > 0),
+    related_works: normalizeWorkIdentifierList(payload.related_paper),
+    referenced_works: normalizeWorkIdentifierList(payload.referenced_paper),
   }
 }
 

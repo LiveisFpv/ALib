@@ -24,6 +24,7 @@ from psycopg import Connection
 from psycopg.rows import Row
 
 from src.db.connection import get_connection
+from src.services.work_identifier import doi_aliases, normalize_doi
 from src.storage.citation_repository import CitationRepository
 
 
@@ -392,6 +393,14 @@ def process_batch(context: LoaderContext, rows: List[RowData]) -> None:
                 identifiers=row.identifier_aliases,
             )
         )
+        if row.doi:
+            row.seed_paper_ids.update(
+                context.resolve_pending_citations_for_identifiers(
+                    row.paper_id,
+                    identifier_type_id=context.doi_type_id,
+                    identifiers=doi_aliases(row.doi),
+                )
+            )
 
         desired_citation_dest_ids: set[int] = set()
         pending_citation_identifiers: set[tuple[int, str]] = set()
@@ -995,8 +1004,7 @@ def load_records(
         publication_date = parse_publication_date(row.get("publication_date"))
         type_value = clean_text(row.get("type")) or None
 
-        doi_value = clean_text(row.get("doi"))
-        doi_normalized = doi_value.lower() if doi_value else None
+        doi_normalized = normalize_doi(row.get("doi"))
 
         authors = extract_authors(row)
         institutions = extract_institutions(row)

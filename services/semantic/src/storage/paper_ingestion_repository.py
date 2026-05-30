@@ -2,7 +2,6 @@
 
 from __future__ import annotations
 
-import re
 from typing import Iterable
 
 from src.db.connection import transaction
@@ -13,7 +12,6 @@ from src.parser.load_openalex_to_db import (
     ensure_identifier_type,
     find_paper_by_identifier,
     link_identifier,
-    normalize_openalex_id,
     process_batch,
     upsert_paper,
 )
@@ -25,10 +23,15 @@ from src.services.ingestion.models import (
     OpenAlexPaper,
     StoredPaper,
 )
+from src.services.work_identifier import (
+    normalize_doi,
+    normalize_openalex_work_id,
+    openalex_aliases,
+    work_identifier_aliases,
+)
 from src.storage.citation_repository import CitationRepository
 
 
-OPENALEX_ENTITY_RE = re.compile(r"^[WAISCF]\d+$", re.IGNORECASE)
 SUBMISSION_IDENTIFIER_TYPE = "submission"
 
 
@@ -71,6 +74,7 @@ class PaperIngestionRepository:
                 identifier_type_id, aliases = self._identifier_spec(
                     identifier,
                     openalex_type_id=context.openalex_type_id,
+                    doi_type_id=context.doi_type_id,
                     submission_type_id=submission_type_id,
                 )
                 for alias in aliases:
@@ -154,7 +158,7 @@ class PaperIngestionRepository:
                         year=paper.year,
                         type_value=clean_text(paper.state) or DEFAULT_OPENALEX_STATE,
                         created_at=paper.publication_date,
-                        doi=clean_text(paper.doi.lower() if paper.doi else None),
+                        doi=normalize_doi(paper.doi),
                         authors=list(paper.authors),
                         institutions=list(paper.institutions),
                         locations=locations,
@@ -193,9 +197,19 @@ class PaperIngestionRepository:
     ) -> int | None:
         if not identifier:
             return None
-        if self._looks_like_openalex_identifier(identifier):
-            return context.lookup_paper_id(self._build_openalex_aliases(identifier))
-        return find_paper_by_identifier(conn, submission_type_id, identifier)
+        identifier_type_id, aliases = self._identifier_spec(
+            identifier,
+            openalex_type_id=context.openalex_type_id,
+            doi_type_id=context.doi_type_id,
+            submission_type_id=submission_type_id,
+        )
+        return self._resolve_target_paper_id(
+            conn,
+            context,
+            identifier_type_id=identifier_type_id,
+            aliases=aliases,
+            submission_type_id=submission_type_id,
+        )
 
     def _resolve_reference_targets(
         self,
@@ -216,6 +230,7 @@ class PaperIngestionRepository:
             identifier_type_id, aliases = self._identifier_spec(
                 identifier,
                 openalex_type_id=context.openalex_type_id,
+                doi_type_id=context.doi_type_id,
                 submission_type_id=submission_type_id,
             )
             dest_paper_id = self._resolve_target_paper_id(
@@ -249,6 +264,7 @@ class PaperIngestionRepository:
             identifier_type_id, aliases = self._identifier_spec(
                 identifier,
                 openalex_type_id=context.openalex_type_id,
+                doi_type_id=context.doi_type_id,
                 submission_type_id=submission_type_id,
             )
             dest_paper_id = self._resolve_target_paper_id(
@@ -272,9 +288,9 @@ class PaperIngestionRepository:
         submission_type_id: int,
     ) -> int | None:
         if identifier_type_id == context.openalex_type_id:
-            return context.lookup_paper_id(aliases)
-        if identifier_type_id == submission_type_id and aliases:
-            return find_paper_by_identifier(conn, identifier_type_id, aliases[0])
+            return context.lookup_paper_id(aliases) or find_paper_by_identifier(conn, identifier_type_id, aliases)
+        if aliases:
+            return find_paper_by_identifier(conn, identifier_type_id, aliases)
         return None
 
     def _ensure_best_location(self, conn, paper_id: int, best_oa_location: str | None) -> None:
@@ -309,22 +325,11 @@ class PaperIngestionRepository:
 
     @staticmethod
     def _looks_like_openalex_identifier(value: str) -> bool:
-        normalized = normalize_openalex_id(value)
-        if not normalized:
-            return False
-        return bool(OPENALEX_ENTITY_RE.match(normalized))
+        return normalize_openalex_work_id(value) is not None
 
     @staticmethod
     def _build_openalex_aliases(value: str | None) -> list[str]:
-        cleaned = clean_text(value)
-        if not cleaned:
-            return []
-        aliases: list[str] = []
-        normalized = normalize_openalex_id(cleaned)
-        if normalized:
-            aliases.append(normalized)
-        aliases.append(cleaned)
-        return list(dict.fromkeys(alias for alias in aliases if alias))
+        return openalex_aliases(value)
 
     @classmethod
     def _identifier_spec(
@@ -332,12 +337,15 @@ class PaperIngestionRepository:
         value: str,
         *,
         openalex_type_id: int,
+        doi_type_id: int,
         submission_type_id: int,
     ) -> tuple[int, list[str]]:
-        if cls._looks_like_openalex_identifier(value):
-            return openalex_type_id, cls._build_openalex_aliases(value)
-        cleaned = clean_text(value)
-        return submission_type_id, [cleaned] if cleaned else []
+        identifier_type, aliases = work_identifier_aliases(value)
+        if identifier_type == "openalex":
+            return openalex_type_id, aliases
+        if identifier_type == "doi":
+            return doi_type_id, aliases
+        return submission_type_id, aliases
 
     @staticmethod
     def _best_location_from_row(row: RowData) -> str | None:

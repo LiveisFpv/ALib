@@ -83,11 +83,12 @@ const messages: Record<Locale, Record<string, string>> = {
     'paperAdd.noRelated': 'No related papers added yet.',
     'paperAdd.referencedHint': 'Include works that your paper cites directly.',
     'paperAdd.noReferenced': 'No referenced papers added yet.',
-    'paperAdd.idPlaceholder': 'Enter paper ID or DOI',
+    'paperAdd.idPlaceholder': 'DOI or OpenAlex Work ID',
+    'paperAdd.identifierHint': 'You can paste a DOI, DOI URL, OpenAlex W-id, or OpenAlex URL.',
     'paperAdd.sidebar.title': 'Before you submit',
     'paperAdd.sidebar.tip1': 'Ensure the title is unique and accurately reflects the paper.',
     'paperAdd.sidebar.tip2': 'Link to a stable PDF or source so moderators can verify your work.',
-    'paperAdd.sidebar.tip3': 'Adding related and referenced IDs helps speed up moderation.',
+    'paperAdd.sidebar.tip3': 'Adding related and referenced DOI/OpenAlex IDs helps speed up moderation.',
     'paperAdd.sidebar.help': 'You can edit the submission while the status remains pending.',
 
     'papers.title': 'My Papers',
@@ -473,12 +474,13 @@ const messages: Record<Locale, Record<string, string>> = {
     'paperAdd.noRelated': 'Связанных статей пока нет.',
     'paperAdd.referencedHint': 'Укажите статьи, на которые вы ссылаетесь напрямую.',
     'paperAdd.noReferenced': 'Ссылаемых статей пока нет.',
-    'paperAdd.idPlaceholder': 'Укажите ID или DOI статьи',
+    'paperAdd.idPlaceholder': 'DOI или OpenAlex Work ID',
+    'paperAdd.identifierHint': 'Можно вставить DOI, ссылку DOI, OpenAlex W-id или ссылку OpenAlex.',
     'paperAdd.sidebar.title': 'Перед отправкой',
     'paperAdd.sidebar.tip1': 'Проверьте, что заголовок уникален и точно отражает содержание.',
     'paperAdd.sidebar.tip2':
       'Укажите стабильную ссылку на PDF или источник для проверки модераторами.',
-    'paperAdd.sidebar.tip3': 'Связанные и ссылаемые ID ускоряют модерацию и каталогизацию.',
+    'paperAdd.sidebar.tip3': 'DOI/OpenAlex ID связанных и ссылаемых статей ускоряют модерацию и каталогизацию.',
     'paperAdd.sidebar.help':
       'Пока статус заявки «На модерации», вы можете вносить изменения в данные.',
 

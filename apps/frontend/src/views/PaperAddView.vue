@@ -2,6 +2,7 @@
 import { reactive, ref, watch } from 'vue'
 import { useI18n } from '@/i18n'
 import { usePaperStore } from '@/stores/paperStore'
+import { normalizeWorkIdentifier } from '@/utils/workIdentifier'
 
 type Related = { id: string }
 type Referenced = { id: string }
@@ -77,18 +78,32 @@ function removeReferenced(i: number) {
   form.referenced_paper.splice(i, 1)
 }
 
+function normalizeSourceIdentifier() {
+  form.source_identifier = normalizeWorkIdentifier(form.source_identifier)
+}
+
+function normalizeRelated(index: number) {
+  form.related_paper[index].id = normalizeWorkIdentifier(form.related_paper[index].id)
+}
+
+function normalizeReferenced(index: number) {
+  form.referenced_paper[index].id = normalizeWorkIdentifier(form.referenced_paper[index].id)
+}
+
 function buildPayload() {
   return {
     id: currentSubmissionId.value || undefined,
-    source_identifier: form.source_identifier.trim() || undefined,
+    source_identifier: normalizeWorkIdentifier(form.source_identifier) || undefined,
     title: form.title.trim() || undefined,
     abstract: form.abstract.trim() || undefined,
     year: Number(form.year) || undefined,
     best_oa_location: form.best_oa_location.trim() || undefined,
-    related_paper: form.related_paper.filter((r) => r.id.trim()).map((r) => ({ id: r.id.trim() })),
+    related_paper: form.related_paper
+      .map((r) => ({ id: normalizeWorkIdentifier(r.id) }))
+      .filter((r) => r.id),
     referenced_paper: form.referenced_paper
-      .filter((r) => r.id.trim())
-      .map((r) => ({ id: r.id.trim() })),
+      .map((r) => ({ id: normalizeWorkIdentifier(r.id) }))
+      .filter((r) => r.id),
   }
 }
 
@@ -157,7 +172,9 @@ async function submitForReview() {
             type="text"
             v-model="form.source_identifier"
             :placeholder="t('paperAdd.idPlaceholder')"
+            @blur="normalizeSourceIdentifier"
           />
+          <small>{{ t('paperAdd.identifierHint') }}</small>
         </label>
         <label>
           <span>{{ t('paperAdd.title') }}</span>
@@ -185,7 +202,12 @@ async function submitForReview() {
           </div>
           <div class="list" v-if="form.related_paper.length">
             <div class="item" v-for="(r, i) in form.related_paper" :key="i">
-              <input type="text" v-model="r.id" placeholder="Paper ID" />
+              <input
+                type="text"
+                v-model="r.id"
+                :placeholder="t('paperAdd.idPlaceholder')"
+                @blur="normalizeRelated(i)"
+              />
               <button type="button" class="btn" @click="removeRelated(i)">
                 {{ t('common.remove') }}
               </button>
@@ -200,7 +222,12 @@ async function submitForReview() {
           </div>
           <div class="list" v-if="form.referenced_paper.length">
             <div class="item" v-for="(r, i) in form.referenced_paper" :key="i">
-              <input type="text" v-model="r.id" placeholder="Paper ID" />
+              <input
+                type="text"
+                v-model="r.id"
+                :placeholder="t('paperAdd.idPlaceholder')"
+                @blur="normalizeReferenced(i)"
+              />
               <button type="button" class="btn" @click="removeReferenced(i)">
                 {{ t('common.remove') }}
               </button>
@@ -311,6 +338,11 @@ label {
 label span {
   color: var(--color-muted);
   font-size: 0.9rem;
+}
+label small {
+  color: var(--color-text-secondary);
+  font-size: 0.78rem;
+  line-height: 1.35;
 }
 input[type='text'],
 input[type='number'],

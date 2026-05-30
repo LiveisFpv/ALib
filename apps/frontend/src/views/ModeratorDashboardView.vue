@@ -6,6 +6,7 @@ import LeftTab from '@/components/LeftTab.vue'
 import { locale, useI18n } from '@/i18n'
 import { useLayoutInset } from '@/composables/useLayoutInset'
 import { AlibApi } from '@/api/useAlibApi'
+import { normalizeWorkIdentifier, normalizeWorkIdentifierList } from '@/utils/workIdentifier'
 import type {
   ModerateSubmissionRequest,
   SubmissionRecord,
@@ -132,17 +133,13 @@ function mapItem(submission: SubmissionRecord): ModerationItem {
 
 function buildUpsertRequest(item: ModerationItem): SubmissionUpsertRequest {
   return {
-    source_identifier: item.form.source_identifier.trim(),
+    source_identifier: normalizeWorkIdentifier(item.form.source_identifier),
     title: item.form.title.trim(),
     abstract: item.form.abstract.trim(),
     year: item.form.year || 0,
     best_oa_location: item.form.best_oa_location.trim(),
-    related_works: item.form.related_works
-      .map((link) => link.id.trim())
-      .filter((value) => value.length > 0),
-    referenced_works: item.form.referenced_works
-      .map((link) => link.id.trim())
-      .filter((value) => value.length > 0),
+    related_works: normalizeWorkIdentifierList(item.form.related_works),
+    referenced_works: normalizeWorkIdentifierList(item.form.referenced_works),
   }
 }
 
@@ -274,6 +271,18 @@ function addReferenced(item: ModerationItem) {
 
 function removeReferenced(item: ModerationItem, index: number) {
   item.form.referenced_works.splice(index, 1)
+}
+
+function normalizeSourceIdentifier(item: ModerationItem) {
+  item.form.source_identifier = normalizeWorkIdentifier(item.form.source_identifier)
+}
+
+function normalizeRelated(item: ModerationItem, index: number) {
+  item.form.related_works[index].id = normalizeWorkIdentifier(item.form.related_works[index].id)
+}
+
+function normalizeReferenced(item: ModerationItem, index: number) {
+  item.form.referenced_works[index].id = normalizeWorkIdentifier(item.form.referenced_works[index].id)
 }
 
 async function saveEdit(item: ModerationItem) {
@@ -559,7 +568,9 @@ function openPublic(item: SubmissionRecord) {
                 type="text"
                 v-model="activeItem.form.source_identifier"
                 :placeholder="t('paperAdd.idPlaceholder')"
+                @blur="normalizeSourceIdentifier(activeItem)"
               />
+              <small>{{ t('paperAdd.identifierHint') }}</small>
             </label>
             <label>
               <span>{{ t('paperAdd.title') }}</span>
@@ -597,7 +608,12 @@ function openPublic(item: SubmissionRecord) {
                   v-for="(link, index) in activeItem.form.related_works"
                   :key="`modal-rel-${index}`"
                 >
-                  <input type="text" v-model="link.id" :placeholder="t('paperAdd.idPlaceholder')" />
+                  <input
+                    type="text"
+                    v-model="link.id"
+                    :placeholder="t('paperAdd.idPlaceholder')"
+                    @blur="normalizeRelated(activeItem, index)"
+                  />
                   <button
                     class="action-button action-button--small"
                     type="button"
@@ -622,7 +638,12 @@ function openPublic(item: SubmissionRecord) {
                   v-for="(link, index) in activeItem.form.referenced_works"
                   :key="`modal-ref-${index}`"
                 >
-                  <input type="text" v-model="link.id" :placeholder="t('paperAdd.idPlaceholder')" />
+                  <input
+                    type="text"
+                    v-model="link.id"
+                    :placeholder="t('paperAdd.idPlaceholder')"
+                    @blur="normalizeReferenced(activeItem, index)"
+                  />
                   <button
                     class="action-button action-button--small"
                     type="button"
@@ -1271,6 +1292,12 @@ function openPublic(item: SubmissionRecord) {
 .editor label span {
   color: var(--color-muted);
   font-size: 0.9rem;
+}
+
+.editor label small {
+  color: var(--color-text-secondary);
+  font-size: 0.78rem;
+  line-height: 1.35;
 }
 
 input[type='text'],

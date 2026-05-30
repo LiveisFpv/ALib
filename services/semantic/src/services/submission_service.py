@@ -9,6 +9,7 @@ from src.domain.models.submission import (
     SUBMISSION_STATUS_REJECTED,
     SubmissionModel,
 )
+from src.services.work_identifier import normalize_work_identifier
 
 
 ALLOWED_SUBMISSION_STATUSES = {
@@ -98,7 +99,7 @@ class SubmissionService:
         self._ensure_user(normalized_user_id)
         return self.repository.create_submission(
             created_by_user_id=normalized_user_id,
-            source_identifier=_clean_text(source_identifier),
+            source_identifier=_clean_identifier(source_identifier),
             title=_clean_text(title) or "",
             abstract=_clean_text(abstract) or "",
             year=_clean_year(year),
@@ -125,7 +126,7 @@ class SubmissionService:
         return self.repository.update_author_submission(
             created_by_user_id=int(user_id),
             submission_id=int(submission_id),
-            source_identifier=_clean_text(source_identifier),
+            source_identifier=_clean_identifier(source_identifier),
             title=_clean_text(title) or "",
             abstract=_clean_text(abstract) or "",
             year=_clean_year(year),
@@ -215,7 +216,7 @@ class SubmissionService:
             raise SubmissionStateError("only pending submissions can be updated by moderator")
         return self.repository.update_moderation_submission(
             submission_id=int(submission_id),
-            source_identifier=_clean_text(source_identifier),
+            source_identifier=_clean_identifier(source_identifier),
             title=_clean_text(title) or "",
             abstract=_clean_text(abstract) or "",
             year=_clean_year(year),
@@ -270,7 +271,7 @@ class SubmissionService:
         referenced_works: Sequence[str],
         related_works: Sequence[str],
     ) -> SubmissionModel:
-        cleaned_identifier = _clean_text(source_identifier)
+        cleaned_identifier = _clean_identifier(source_identifier)
         if cleaned_identifier:
             existing = self.repository.find_latest_submission_by_source_identifier(
                 created_by_user_id=int(user_id),
@@ -355,11 +356,15 @@ def _clean_text(value: str | None) -> str | None:
     return text or None
 
 
+def _clean_identifier(value: str | None) -> str | None:
+    return normalize_work_identifier(value)
+
+
 def _clean_identifier_list(values: Iterable[str]) -> list[str]:
     cleaned: list[str] = []
     seen: set[str] = set()
     for value in values:
-        identifier = _clean_text(value)
+        identifier = _clean_identifier(value)
         if not identifier or identifier in seen:
             continue
         seen.add(identifier)

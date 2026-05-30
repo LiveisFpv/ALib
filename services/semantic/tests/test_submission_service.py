@@ -22,6 +22,11 @@ from src.services.submission_service import (  # noqa: E402
     SubmissionService,
     SubmissionStateError,
 )
+from src.services.work_identifier import (  # noqa: E402
+    normalize_doi,
+    normalize_openalex_work_id,
+    normalize_work_identifier,
+)
 
 
 class FakeSubmissionRepository:
@@ -265,6 +270,39 @@ def test_create_submission_ensures_user_before_insert() -> None:
 
     assert user_service.ensured_user_ids == [10]
     assert submission.created_by_user_id == 10
+
+
+def test_work_identifier_normalization_accepts_doi_and_openalex_urls() -> None:
+    assert normalize_openalex_work_id("https://openalex.org/W2741809807") == "W2741809807"
+    assert normalize_openalex_work_id("https://api.openalex.org/works/W2741809807") == "W2741809807"
+    assert normalize_doi("https://doi.org/10.1145/3368089.3409742") == "10.1145/3368089.3409742"
+    assert normalize_work_identifier("DOI:10.1000/ABC") == "10.1000/abc"
+
+
+def test_create_submission_normalizes_relation_identifiers() -> None:
+    service, repository = make_service()
+
+    submission = service.create_my_submission(
+        user_id=10,
+        source_identifier="https://doi.org/10.1000/ABC",
+        title="title",
+        abstract="abstract",
+        year=None,
+        best_oa_location=None,
+        referenced_works=[
+            "https://openalex.org/W2741809807",
+            "doi:10.1145/3368089.3409742",
+            "https://doi.org/10.1145/3368089.3409742",
+        ],
+        related_works=["w123", "https://doi.org/10.1000/XYZ"],
+    )
+
+    assert submission.source_identifier == "10.1000/abc"
+    assert repository.submissions[1].referenced_works == [
+        "W2741809807",
+        "10.1145/3368089.3409742",
+    ]
+    assert repository.submissions[1].related_works == ["W123", "10.1000/xyz"]
 
 
 def test_author_cannot_update_approved_submission() -> None:

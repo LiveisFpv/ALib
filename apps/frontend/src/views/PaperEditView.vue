@@ -2,6 +2,7 @@
 import { computed, reactive, ref, watch } from 'vue'
 import { usePaperStore, type PaperPayload, type PaperStatus } from '@/stores/paperStore'
 import { locale, useI18n } from '@/i18n'
+import { normalizeWorkIdentifier } from '@/utils/workIdentifier'
 
 type Related = { id: string }
 type Referenced = { id: string }
@@ -129,20 +130,32 @@ function removeReferenced(index: number) {
   form.referenced_paper.splice(index, 1)
 }
 
+function normalizeSourceIdentifier() {
+  form.source_identifier = normalizeWorkIdentifier(form.source_identifier)
+}
+
+function normalizeRelated(index: number) {
+  form.related_paper[index].id = normalizeWorkIdentifier(form.related_paper[index].id)
+}
+
+function normalizeReferenced(index: number) {
+  form.referenced_paper[index].id = normalizeWorkIdentifier(form.referenced_paper[index].id)
+}
+
 function buildPayload(): PaperPayload {
   return {
     id: paper.value?.id,
-    source_identifier: form.source_identifier.trim() || undefined,
+    source_identifier: normalizeWorkIdentifier(form.source_identifier) || undefined,
     title: form.title.trim() || undefined,
     abstract: form.abstract.trim() || undefined,
     year: form.year,
     best_oa_location: form.best_oa_location.trim() || undefined,
     related_paper: form.related_paper
-      .filter((item) => item.id.trim())
-      .map((item) => ({ id: item.id.trim() })),
+      .map((item) => ({ id: normalizeWorkIdentifier(item.id) }))
+      .filter((item) => item.id),
     referenced_paper: form.referenced_paper
-      .filter((item) => item.id.trim())
-      .map((item) => ({ id: item.id.trim() })),
+      .map((item) => ({ id: normalizeWorkIdentifier(item.id) }))
+      .filter((item) => item.id),
   }
 }
 
@@ -260,7 +273,9 @@ function goBack() {
                 type="text"
                 v-model="form.source_identifier"
                 :placeholder="t('paperAdd.idPlaceholder')"
+                @blur="normalizeSourceIdentifier"
               />
+              <small>{{ t('paperAdd.identifierHint') }}</small>
             </label>
             <label>
               <span>{{ t('paperAdd.title') }}</span>
@@ -290,7 +305,12 @@ function goBack() {
               </div>
               <div class="list" v-if="form.related_paper.length">
                 <div class="item" v-for="(rel, idx) in form.related_paper" :key="idx">
-                  <input type="text" v-model="rel.id" />
+                  <input
+                    type="text"
+                    v-model="rel.id"
+                    :placeholder="t('paperAdd.idPlaceholder')"
+                    @blur="normalizeRelated(idx)"
+                  />
                   <button class="btn" type="button" @click="removeRelated(idx)">
                     {{ t('common.remove') }}
                   </button>
@@ -307,7 +327,12 @@ function goBack() {
               </div>
               <div class="list" v-if="form.referenced_paper.length">
                 <div class="item" v-for="(ref, idx) in form.referenced_paper" :key="idx">
-                  <input type="text" v-model="ref.id" />
+                  <input
+                    type="text"
+                    v-model="ref.id"
+                    :placeholder="t('paperAdd.idPlaceholder')"
+                    @blur="normalizeReferenced(idx)"
+                  />
                   <button class="btn" type="button" @click="removeReferenced(idx)">
                     {{ t('common.remove') }}
                   </button>
@@ -485,6 +510,11 @@ label {
 label span {
   color: var(--color-muted);
   font-size: 0.9rem;
+}
+label small {
+  color: var(--color-text-secondary);
+  font-size: 0.78rem;
+  line-height: 1.35;
 }
 input[type='text'],
 input[type='number'],
