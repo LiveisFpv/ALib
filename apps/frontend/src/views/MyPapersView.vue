@@ -56,7 +56,6 @@ const enrichedPapers = computed(() =>
     paper,
     status: getAuthorStatus(paper),
     completeness: getMetadataCompleteness(paper),
-    analytics: getAnalytics(paper),
   })),
 )
 
@@ -126,18 +125,6 @@ const nextActions = computed(() => {
           },
         ]
       }
-      if (status === 'published') {
-        return [
-          {
-            key: `analytics-${paper.id}`,
-            tone: 'success',
-            title: t('papers.next.openAnalytics'),
-            description: getPaperTitle(paper),
-            actionLabel: t('papers.action.viewAnalytics'),
-            run: () => openPublicOrSubmission(paper),
-          },
-        ]
-      }
       return []
     })
     .slice(0, 4)
@@ -204,18 +191,6 @@ function getMetadataCompleteness(paper: PaperDetail) {
   }
 }
 
-function getAnalytics(paper: PaperDetail) {
-  const seed = Number(paper.approvedPaperId || paper.id) || 0
-  const relatedCount = paper.related_paper?.length ?? 0
-  const referenceCount = paper.referenced_paper?.length ?? 0
-  return {
-    appearances: seed ? 80 + (seed % 43) + relatedCount * 3 : 0,
-    opens: seed ? 18 + (seed % 21) + relatedCount : 0,
-    citations: Math.max(0, Math.floor(referenceCount / 2)),
-    related: relatedCount,
-  }
-}
-
 function filterMatches(status: AuthorStatus, filter: AuthorFilter) {
   if (filter === 'all') return true
   if (filter === 'drafts') return status === 'draft' || status === 'ready'
@@ -239,6 +214,10 @@ function getStatusTone(status: AuthorStatus) {
   return 'info'
 }
 
+function isPublishedStatus(status: AuthorStatus) {
+  return status === 'published' || status === 'approved'
+}
+
 function getCurrentStep(status: AuthorStatus) {
   return t(`papers.step.${status}`)
 }
@@ -252,10 +231,6 @@ function getPrimaryActionLabel(status: AuthorStatus) {
     case 'changesRequested':
     case 'rejected':
       return t('papers.action.viewComments')
-    case 'published':
-      return t('papers.action.viewAnalytics')
-    case 'approved':
-      return t('papers.action.openPublic')
     default:
       return t('papers.action.viewSubmission')
   }
@@ -264,10 +239,6 @@ function getPrimaryActionLabel(status: AuthorStatus) {
 function runPrimaryAction(paper: PaperDetail, status: AuthorStatus) {
   if (status === 'ready') {
     void submitForReview(paper.id)
-    return
-  }
-  if ((status === 'published' || status === 'approved') && paper.approvedPaperId) {
-    openPublic(paper.approvedPaperId)
     return
   }
   goToEdit(paper.id)
@@ -295,18 +266,6 @@ function goToAdd() {
 function goToImport() {
   isImportMode.value = true
   isAddModalOpen.value = true
-}
-
-function openPublic(paperId: number) {
-  router.push({ path: `/paper/${paperId}` })
-}
-
-function openPublicOrSubmission(paper: PaperDetail) {
-  if (paper.approvedPaperId) {
-    openPublic(paper.approvedPaperId)
-    return
-  }
-  goToEdit(paper.id)
 }
 
 async function submitForReview(id: string) {
@@ -502,7 +461,7 @@ async function handleDelete(id: string) {
               </span>
               <span class="submission-id">#{{ item.paper.id }}</span>
             </div>
-            <span class="metadata-compact">
+            <span v-if="!isPublishedStatus(item.status)" class="metadata-compact">
               {{ t('papers.metadataComplete').replace('{percent}', String(item.completeness.percent)) }}
             </span>
           </header>
@@ -521,7 +480,7 @@ async function handleDelete(id: string) {
                 </span>
               </div>
 
-              <div class="metadata-line">
+              <div v-if="!isPublishedStatus(item.status)" class="metadata-line">
                 <div class="metadata-track" aria-hidden="true">
                   <span :style="{ width: `${item.completeness.percent}%` }"></span>
                 </div>
@@ -529,38 +488,24 @@ async function handleDelete(id: string) {
               </div>
             </section>
 
-            <aside class="paper-step-panel">
+            <aside v-if="!isPublishedStatus(item.status)" class="paper-step-panel">
               <strong>{{ getCurrentStep(item.status) }}</strong>
               <p v-if="item.paper.moderatorComment">{{ item.paper.moderatorComment }}</p>
             </aside>
           </div>
 
-          <section
-            v-if="item.status === 'published' || item.status === 'approved'"
-            class="analytics-summary"
-            :aria-label="t('papers.analytics.title')"
+          <footer
+            v-if="!isPublishedStatus(item.status) || paperStore.canDelete(item.paper.id, item.paper.source)"
+            class="paper-card-actions"
           >
-            <span>{{ t('papers.analytics.appearances') }}: {{ item.analytics.appearances }}</span>
-            <span>{{ t('papers.analytics.opens') }}: {{ item.analytics.opens }}</span>
-            <span>{{ t('papers.analytics.citations') }}: {{ item.analytics.citations }}</span>
-          </section>
-
-          <footer class="paper-card-actions">
             <button
+              v-if="!isPublishedStatus(item.status)"
               class="action-button action-button--primary"
               type="button"
               :disabled="busyId === item.paper.id"
               @click="runPrimaryAction(item.paper, item.status)"
             >
               {{ busyId === item.paper.id ? t('common.loading') : getPrimaryActionLabel(item.status) }}
-            </button>
-            <button
-              v-if="item.paper.approvedPaperId"
-              class="action-button"
-              type="button"
-              @click="openPublic(item.paper.approvedPaperId)"
-            >
-              {{ t('papers.action.openPublic') }}
             </button>
             <!-- <button class="action-button" type="button" @click="duplicatePaper(item.paper)">
               {{ t('papers.action.duplicate') }}
@@ -1124,23 +1069,6 @@ async function handleDelete(id: string) {
   margin: 0;
   color: var(--color-text-secondary);
   line-height: 1.45;
-}
-
-.analytics-summary {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 8px 14px;
-  padding-top: 10px;
-  border: 1px solid color-mix(in oklab, var(--color-success), transparent 76%);
-  border-width: 1px 0 0;
-  border-radius: 0;
-  background: color-mix(in oklab, var(--color-success), transparent 95%);
-}
-
-.analytics-summary span {
-  color: var(--color-muted);
-  font-size: 0.8rem;
-  font-weight: 700;
 }
 
 .state-banner {
