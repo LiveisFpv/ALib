@@ -700,7 +700,7 @@ const messages: Record<Locale, Record<string, string>> = {
     'chat.input.search': 'Найти работы',
     'chat.input.searching': 'Поиск…',
     'chat.input.blocked': 'Заблокировано',
-    'chat.input.placeholder': 'Спросите о статьях, методах, цитированиях...',
+    'chat.input.placeholder': 'Спросите о статьях, интересующих методах, темах...',
     'chat.blockedNote': 'Поиск недоступен для ролей Админ/Модератор',
     'chat.untitled': 'Без названия',
     'chat.noAbstract': 'Нет аннотации.',

@@ -193,6 +193,7 @@ export const usePaperStore = defineStore('paper', () => {
   async function loadMyPapers(query: SubmissionListQuery = {}) {
     if (isLoading.value) return
     isLoading.value = true
+    items.value = []
     try {
       const [submissionsResponse, catalogResponse] = await Promise.all([
         AlibApi.listMySubmissions({

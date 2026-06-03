@@ -52,11 +52,15 @@ const papers = computed(() =>
 )
 
 const enrichedPapers = computed(() =>
-  papers.value.map((paper) => ({
-    paper,
-    status: getAuthorStatus(paper),
-    completeness: getMetadataCompleteness(paper),
-  })),
+  papers.value.map((paper) => {
+    const isPublished = isPublishedPaper(paper)
+    return {
+      paper,
+      status: getAuthorStatus(paper),
+      completeness: isPublished ? null : getMetadataCompleteness(paper),
+      isPublished,
+    }
+  }),
 )
 
 const visiblePapers = computed(() => {
@@ -88,8 +92,9 @@ const summary = computed(() => ({
 const nextActions = computed(() => {
   const actions = enrichedPapers.value
     .flatMap((item) => {
-      const { paper, status, completeness } = item
-      if (status === 'draft' && completeness.percent < 100) {
+      const { paper, status, completeness, isPublished } = item
+      if (isPublished) return []
+      if (status === 'draft' && completeness && completeness.percent < 100) {
         return [
           {
             key: `complete-${paper.id}`,
@@ -163,6 +168,7 @@ function getPaperTitle(paper: PaperDetail) {
 }
 
 function getAuthorStatus(paper: PaperDetail): AuthorStatus {
+  if (isPublishedPaper(paper)) return paper.approvedPaperId || paper.source === 'catalog' ? 'published' : 'approved'
   const completeness = getMetadataCompleteness(paper).percent
   if (paper.status === 'approved' && paper.approvedPaperId) return 'published'
   if (paper.status === 'approved') return 'approved'
@@ -214,8 +220,8 @@ function getStatusTone(status: AuthorStatus) {
   return 'info'
 }
 
-function isPublishedStatus(status: AuthorStatus) {
-  return status === 'published' || status === 'approved'
+function isPublishedPaper(paper: PaperDetail) {
+  return paper.source === 'catalog' || paper.status === 'approved' || !!paper.approvedPaperId
 }
 
 function getCurrentStep(status: AuthorStatus) {
@@ -461,8 +467,8 @@ async function handleDelete(id: string) {
               </span>
               <span class="submission-id">#{{ item.paper.id }}</span>
             </div>
-            <span v-if="!isPublishedStatus(item.status)" class="metadata-compact">
-              {{ t('papers.metadataComplete').replace('{percent}', String(item.completeness.percent)) }}
+            <span v-if="!item.isPublished" class="metadata-compact">
+              {{ t('papers.metadataComplete').replace('{percent}', String(item.completeness?.percent ?? 0)) }}
             </span>
           </header>
 
@@ -480,26 +486,26 @@ async function handleDelete(id: string) {
                 </span>
               </div>
 
-              <div v-if="!isPublishedStatus(item.status)" class="metadata-line">
+              <div v-if="!item.isPublished" class="metadata-line">
                 <div class="metadata-track" aria-hidden="true">
-                  <span :style="{ width: `${item.completeness.percent}%` }"></span>
+                  <span :style="{ width: `${item.completeness?.percent ?? 0}%` }"></span>
                 </div>
-                <span>{{ item.completeness.complete }}/{{ item.completeness.total }}</span>
+                <span>{{ item.completeness?.complete ?? 0 }}/{{ item.completeness?.total ?? 0 }}</span>
               </div>
             </section>
 
-            <aside v-if="!isPublishedStatus(item.status)" class="paper-step-panel">
+            <aside v-if="!item.isPublished" class="paper-step-panel">
               <strong>{{ getCurrentStep(item.status) }}</strong>
               <p v-if="item.paper.moderatorComment">{{ item.paper.moderatorComment }}</p>
             </aside>
           </div>
 
           <footer
-            v-if="!isPublishedStatus(item.status) || paperStore.canDelete(item.paper.id, item.paper.source)"
+            v-if="!item.isPublished || paperStore.canDelete(item.paper.id, item.paper.source)"
             class="paper-card-actions"
           >
             <button
-              v-if="!isPublishedStatus(item.status)"
+              v-if="!item.isPublished"
               class="action-button action-button--primary"
               type="button"
               :disabled="busyId === item.paper.id"
