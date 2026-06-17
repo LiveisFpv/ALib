@@ -291,6 +291,29 @@ services:
     networks:
       - public
 
+  newt:
+    image: fosrl/newt:latest
+    profiles:
+      - pangolin
+    environment:
+      PANGOLIN_ENDPOINT: ${PANGOLIN_ENDPOINT:-}
+      NEWT_ID: ${NEWT_ID:-}
+      NEWT_SECRET: ${NEWT_SECRET:-}
+      LOG_LEVEL: ${NEWT_LOG_LEVEL:-INFO}
+      HEALTH_FILE: /tmp/newt-healthy
+    depends_on:
+      nginx:
+        condition: service_started
+    healthcheck:
+      test: ["CMD-SHELL", "test -f /tmp/newt-healthy"]
+      interval: 10s
+      timeout: 5s
+      retries: 3
+      start_period: 10s
+    restart: unless-stopped
+    networks:
+      - public
+
 networks:
   public:
     driver: bridge

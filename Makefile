@@ -14,12 +14,14 @@ CERTBOT_STAGING_ARG := $(if $(filter 1 true yes,$(CERTBOT_STAGING)),--staging,)
 ifeq ($(OS),Windows_NT)
 COPY_ENV := copy /Y .env.example "$(ENV_FILE)"
 SET_NGINX_CLOUDFLARED := set NGINX_MODE=cloudflared&&
+SET_NGINX_PANGOLIN := set NGINX_MODE=origin-http&&
 else
 COPY_ENV := cp .env.example "$(ENV_FILE)"
 SET_NGINX_CLOUDFLARED := NGINX_MODE=cloudflared
+SET_NGINX_PANGOLIN := NGINX_MODE=origin-http
 endif
 
-.PHONY: help env config dev build up down restart ps logs deploy first-deploy cloudflared-deploy cloudflared-up cloudflared-logs cert-init cert-renew cert-dry-run nginx-reload check-domain check-cloudflared-token
+.PHONY: help env config dev build up down restart ps logs deploy first-deploy cloudflared-deploy cloudflared-up cloudflared-logs pangolin-deploy pangolin-up pangolin-logs cert-init cert-renew cert-dry-run nginx-reload check-domain check-cloudflared-token check-pangolin-config
 
 help:
 	@echo "ALib deployment commands"
@@ -34,6 +36,7 @@ help:
 	@echo "  make deploy          Build and start stack"
 	@echo "  make first-deploy    Build, issue certificate, and start stack"
 	@echo "  make cloudflared-deploy  Build and start stack with Cloudflare Tunnel"
+	@echo "  make pangolin-deploy     Build and start stack with Pangolin/Newt"
 	@echo "  make cert-init       Issue the first Let's Encrypt certificate"
 	@echo "  make cert-renew      Renew certificates and reload nginx"
 	@echo "  make cert-dry-run    Test renewal without changing certificates"
@@ -78,11 +81,25 @@ cloudflared-up: check-cloudflared-token
 cloudflared-logs:
 	$(COMPOSE) --profile cloudflared logs -f --tail=200 cloudflared
 
+pangolin-deploy: check-pangolin-config config build
+	$(SET_NGINX_PANGOLIN) $(COMPOSE) --profile pangolin up -d
+
+pangolin-up: check-pangolin-config
+	$(SET_NGINX_PANGOLIN) $(COMPOSE) --profile pangolin up -d
+
+pangolin-logs:
+	$(COMPOSE) --profile pangolin logs -f --tail=200 newt
+
 check-domain:
 	$(if $(filter-out localhost example.com,$(strip $(DOMAIN))),@echo "Domain is $(DOMAIN).",$(error Set APP_DOMAIN in $(ENV_FILE) to a real public domain before requesting certificates.))
 
 check-cloudflared-token:
 	$(if $(strip $(CLOUDFLARED_TOKEN)),@echo "Cloudflare Tunnel token is configured.",$(error Set CLOUDFLARED_TOKEN in $(ENV_FILE) before starting Cloudflare Tunnel.))
+
+check-pangolin-config:
+	$(if $(strip $(PANGOLIN_ENDPOINT)),@echo "Pangolin endpoint is configured.",$(error Set PANGOLIN_ENDPOINT in $(ENV_FILE) before starting Pangolin/Newt.))
+	$(if $(strip $(NEWT_ID)),@echo "Newt ID is configured.",$(error Set NEWT_ID in $(ENV_FILE) before starting Pangolin/Newt.))
+	$(if $(strip $(NEWT_SECRET)),@echo "Newt secret is configured.",$(error Set NEWT_SECRET in $(ENV_FILE) before starting Pangolin/Newt.))
 
 cert-init: check-domain
 	$(COMPOSE) up -d nginx

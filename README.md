@@ -13,7 +13,7 @@ AstraLib/
 ├── apps/
 │   └── frontend/              # Vue 3 + TypeScript + Vite
 ├── deploy/
-│   └── nginx/templates/       # шаблоны nginx для HTTP, HTTPS и Cloudflare Tunnel
+│   └── nginx/templates/       # шаблоны nginx для HTTP, HTTPS и tunnel-origin
 ├── docs/
 │   └── PhysicalModel.png      # физическая модель данных
 ├── services/
@@ -34,7 +34,7 @@ AstraLib/
 - `services/gateway` - REST API на Go/Gin. Проверяет JWT через внешний SSO, применяет ролевые ограничения и проксирует поисковые/author-запросы в semantic-service по gRPC.
 - `services/semantic` - Python-сервис семантического поиска. Работает с PostgreSQL, FAISS, E5-эмбеддингами, ingestion-очередью, OpenAlex и citation-aware weighted runtime.
 - `services/ELK` - отдельный стек наблюдаемости.
-- `deploy/nginx/templates` - nginx-конфигурации для production, ACME challenge и Cloudflare Tunnel.
+- `deploy/nginx/templates` - nginx-конфигурации для production, ACME challenge и tunnel-origin.
 
 ## Архитектура запуска
 
@@ -48,7 +48,8 @@ AstraLib/
 - `semantic-migrator` - автоматическое применение миграций semantic DB;
 - `pipeline-worker` - фоновый процесс ingestion pipeline;
 - `certbot` - выпуск/продление Let's Encrypt сертификатов;
-- `cloudflared` - Cloudflare Tunnel при соответствующем профиле.
+- `cloudflared` - Cloudflare Tunnel при соответствующем профиле;
+- `newt` - Pangolin/Newt tunnel connector при соответствующем профиле.
 
 Маршрутизация nginx:
 
@@ -188,11 +189,44 @@ make cloudflared-deploy
 
 В этом режиме TLS завершается на Cloudflare, а tunnel обращается к nginx по внутреннему HTTP.
 
+### Pangolin / Newt
+
+Создайте Newt Site в Pangolin и скопируйте credentials в `.env`:
+
+```env
+APP_DOMAIN=example.com
+PANGOLIN_ENDPOINT=https://app.pangolin.net
+NEWT_ID=<newt-site-id>
+NEWT_SECRET=<newt-site-secret>
+```
+
+Создайте в Pangolin public HTTP/HTTPS resource на нужный FQDN. Для target укажите:
+
+- site: созданный Newt Site;
+- protocol: HTTP;
+- address: `nginx`;
+- port: `80`.
+
+Запуск:
+
+```bash
+make pangolin-deploy
+```
+
+Логи Newt:
+
+```bash
+make pangolin-logs
+```
+
+В этом режиме TLS завершается на Pangolin, а Newt обращается к nginx по внутреннему HTTP. Значения `PUBLIC_URL`, `VITE_API_BASE_URL`, `VITE_FRONTEND_BASE_URL`, `ALLOWED_REDIRECT_URLS`, `ALLOWED_CORS_ORIGINS` и SSO URLs должны соответствовать публичным доменам, настроенным в Pangolin.
+
 ## Переменные окружения
 
 Основные группы переменных лежат в `.env.example`:
 
 - публичные URL и nginx: `APP_DOMAIN`, `PUBLIC_URL`, `NGINX_MODE`, `NGINX_HTTP_PORT`, `NGINX_HTTPS_PORT`;
+- tunnel connectors: `CLOUDFLARED_TOKEN`, `PANGOLIN_ENDPOINT`, `NEWT_ID`, `NEWT_SECRET`, `NEWT_LOG_LEVEL`;
 - frontend: `VITE_API_BASE_URL`, `VITE_FRONTEND_BASE_URL`, `VITE_ALIB_API_URL`, `VITE_SSO_CLIENT_ID_URL`;
 - gateway: `GATEWAY_DOMAIN`, `ALLOWED_CORS_ORIGINS`, `ALLOWED_REDIRECT_URLS`, `GRPC_TIMEOUT`, `SWAGGER_ENABLED`;
 - semantic DB: host внутри compose задан как `semantic-postgres`, а пользовательские значения задаются через `SEMANTIC_DB_PORT`, `SEMANTIC_DB_PUBLIC_PORT`, `SEMANTIC_DB_USER`, `SEMANTIC_DB_PASSWORD`, `SEMANTIC_DB_NAME`;
